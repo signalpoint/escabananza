@@ -1,31 +1,10 @@
-// GAME: EscaBananza | The Escanaba, Michigan Video Game
-//
-// - frankenstein is the default character / player
-//
-// - the frank model should be an character...
-//      that you can bounce off of
-//      you can't walk through
-//      has goofy sayings, e.g. "watch out, buddy" (get friends for voices)
-//  - bad bush...
-//      that you can bounce off of
-//      you can't walk through
-//      plants himself in the ground if you jump on him
-//      turns to a good bush when you water the pesticides off him
-//
-// // CREDITS
-//
-// https://youtu.be/4q2vvZn5aoo
-//  Mario Game Tutorial with JavaScript and HTML Canvas
-//  Chris Courses
-//
-// https://stackoverflow.com/a/10996957/763010
-//  scrolling/sliding background in html5 canvas
-//  Loktar
-//
+
 
 // ASSETS | Declare and Count
 
 let assets = {
+
+  // BACKGROUNDS
 
   sky: {
     src: 'img/sky.png'
@@ -35,7 +14,8 @@ let assets = {
     src: 'img/hills.png'
   },
 
-  // Platforms
+  // PLATFORMS
+
   platform: {
     src: 'img/platform.png'
   },
@@ -43,7 +23,8 @@ let assets = {
     src: 'img/platform-tall.png'
   },
 
-  // Player
+  // PLAYER
+
   standLeft: {
     src: 'img/sprites/frankenstein/standLeft.png'
   },
@@ -57,7 +38,8 @@ let assets = {
     src: 'img/sprites/frankenstein/walkRight.png'
   },
 
-  // Bad Bush
+  // BAD BUSH
+
   badBushWalkLeft: {
     src: 'img/sprites/bad-bush/walkLeft.png'
   },
@@ -65,9 +47,14 @@ let assets = {
     src: 'img/sprites/bad-bush/walkRight.png'
   },
 
-  // Tree
+  // TREES
+
   oakTree: {
     src: 'img/sprites/trees/oak.png'
+  },
+
+  birchTree: {
+    src: 'img/sprites/trees/birch.png'
   }
 
 }
@@ -119,11 +106,11 @@ let player = null
 
 let scrollOffset = 0 // WIN: "let" means it changes over time
 
-// PLATFORMS
-
 let platforms = null
 
 let backgrounds = null
+
+let foregrounds = null
 
 // HELPERS
 
@@ -259,7 +246,7 @@ var init = function() {
 
     // OAK TREE
     new Background({
-      x: platforms[0].position.x + platforms[0].width / 2,
+      x: platforms[0].position.x + platforms[0].width * .38,
       y: platforms[0].position.y - assets.oakTree.height,
       image: assets.oakTree
     })
@@ -292,6 +279,19 @@ var init = function() {
 
   ]
 
+  // FOREGROUNDS
+
+  foregrounds = [
+
+    // BIRCH TREE
+    new Foreground({
+      x: platforms[0].position.x + platforms[0].width *.66,
+      y: platforms[0].position.y - assets.birchTree.height,
+      image: assets.birchTree
+    })
+
+  ]
+
   scrollOffset = 0
 
 }
@@ -302,20 +302,15 @@ function animate() {
 
   gameAnimationFrame = requestAnimationFrame(animate)
 
-  c.fillStyle = 'white'
-  c.fillRect(0, 0, canvas.width, canvas.height)
+//  c.fillStyle = 'white'
+//  c.fillRect(0, 0, canvas.width, canvas.height)
 
-  // scrolling backgrounds
-//  backgrounds.forEach(background => {
-//    background.draw()
-//  })
-
-  // backgrounds
+  // Draw Backgrounds
   backgrounds.forEach(background => {
     background.draw()
   })
 
-  // platforms
+  // Draw Platforms
   platforms.forEach(platform => {
     platform.draw()
   })
@@ -346,8 +341,13 @@ function animate() {
 
   })
 
-  // Draw player
+  // Draw Player
   player.update()
+
+  // Draw Foregrounds
+  foregrounds.forEach(foreground => {
+    foreground.draw()
+  })
 
   // PLAYER MOVEMENT
 
@@ -376,16 +376,16 @@ function animate() {
         platform.position.x -= player.speed
       })
 
-//      backgrounds.forEach(background => {
-//        background.position.x -= player.speed * background.scrollSpeed // parallax scroll
-//      })
-
       backgrounds.forEach(background => {
         background.position.x -= player.speed * background.scrollSpeed // parallax scroll
       })
 
       badbushes.forEach(badbush => {
         badbush.position.x -= player.speed
+      })
+
+      foregrounds.forEach(foreground => {
+        foreground.position.x -= player.speed * foreground.scrollSpeed // parallax scroll
       })
 
     }
@@ -397,16 +397,16 @@ function animate() {
         platform.position.x += player.speed
       })
 
-//      backgrounds.forEach(background => {
-//        background.position.x += player.speed * background.scrollSpeed // parallax scroll
-//      })
-
       backgrounds.forEach(background => {
         background.position.x += player.speed * background.scrollSpeed // parallax scroll
       })
 
       badbushes.forEach(badbush => {
         badbush.position.x += player.speed
+      })
+
+      foregrounds.forEach(foreground => {
+        foreground.position.x += player.speed * foreground.scrollSpeed // parallax scroll
       })
 
     }
