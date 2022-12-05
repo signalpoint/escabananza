@@ -1,4 +1,4 @@
-class Background extends Layer {
+class Foreground extends Layer {
 
   constructor({ x, y, image, scrollSpeed, scrollDirection, autoScroll }) {
 
