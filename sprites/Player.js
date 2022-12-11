@@ -11,6 +11,8 @@ class Player extends Sprite {
     this.width = 32
     this.height = 64
 
+    this.state = 'standing' // standing, running, jumping or falling
+
     // sprites
 
     this.sprites = {
@@ -142,6 +144,9 @@ class Player extends Sprite {
         this.frame = 0
       }
       else if (this.frame >= this.sprites.run.frames && (this.sprite === this.sprites.run.left || this.sprite === this.sprites.run.right)) {
+        this.frame = 0
+      }
+      else if (this.sprite === this.sprites.jump.right || this.sprite === this.sprites.jump.left) {
         this.frame = 0
       }
 
