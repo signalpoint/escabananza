@@ -37,6 +37,12 @@ let assets = {
   runRight: {
     src: 'img/sprites/frankenstein/walkRight.png'
   },
+  jumpLeft: {
+    src: 'img/sprites/frankenstein/jumpLeft.png'
+  },
+  jumpRight: {
+    src: 'img/sprites/frankenstein/jumpRight.png'
+  },
 
   // BAD BUSH
 
@@ -165,7 +171,7 @@ var init = function() {
   player = new Player({
     position: {
       x: 100,
-      y: canvas.height - 192
+      y: platformDefaultY - assets.standRight.height // start on the ground
     },
     velocity: {
       x: 0,
@@ -257,7 +263,7 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: platforms[1].position.x + platforms[1].width * .75,
+        x: Math.round(platforms[1].position.x + platforms[1].width * .75),
         y: platforms[1].position.y - assets.badBushWalkLeft.height
       },
       velocity: {
@@ -268,7 +274,7 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: platforms[3].position.x + platforms[3].width * .22,
+        x: Math.round(platforms[3].position.x + platforms[3].width * .22),
         y: platforms[3].position.y - 100
       },
       velocity: {
@@ -284,11 +290,11 @@ var init = function() {
   foregrounds = [
 
     // BIRCH TREE
-    new Foreground({
-      x: platforms[0].position.x + platforms[0].width *.66,
-      y: platforms[0].position.y - assets.birchTree.height,
-      image: assets.birchTree
-    })
+//    new Foreground({
+//      x: platforms[0].position.x + platforms[0].width *.66,
+//      y: platforms[0].position.y - assets.birchTree.height,
+//      image: assets.birchTree
+//    })
 
   ]
 
@@ -327,6 +333,7 @@ function animate() {
     })) {
 
       player.velocity.y -= 15 // trampoline
+      player.state = 'jumping'
 
       badbushes.splice(i, 1) // remove bad bush
 
@@ -468,22 +475,74 @@ function animate() {
 
   })
 
+  // STATE SWITCHING
+
+  if (player.state === 'jumping' && player.velocity.y === 0) { // reached peak of jump
+
+    player.state = 'falling'
+
+  }
+  else if (player.state === 'falling' && player.velocity.y === 0) { // landed after falling
+
+    if (
+      keys.right.pressed && lastKey === 'right' ||
+      keys.left.pressed && lastKey === 'left'
+    ) { player.state = 'running' } // they are running
+    else { player.state = 'standing' } // they are standing
+
+  }
+
   // SPRITE SWITCHING
-  if (keys.right.pressed && lastKey === 'right' && player.sprite !== player.sprites.run.right) {
-    player.frame = 0;
-    player.sprite = player.sprites.run.right;
-  }
-  else if (keys.left.pressed && lastKey === 'left' && player.sprite !== player.sprites.run.left) {
-    player.frame = 0;
-    player.sprite = player.sprites.run.left;
-  }
-  else if (!keys.left.pressed && lastKey === 'left' && player.sprite !== player.sprites.stand.left) {
-    player.frame = 0;
-    player.sprite = player.sprites.stand.left;
-  }
-  else if (!keys.right.pressed && lastKey === 'right' && player.sprite !== player.sprites.stand.right) {
-    player.frame = 0;
-    player.sprite = player.sprites.stand.right;
+
+  switch (player.state) {
+
+    case 'standing':
+
+      if (!keys.left.pressed && lastKey === 'left' && player.sprite !== player.sprites.stand.left) {
+        player.frame = 0;
+        player.sprite = player.sprites.stand.left;
+      }
+      else if (
+        (
+          !keys.right.pressed && lastKey === 'right' ||
+          !lastKey && player.sprite !== player.sprites.stand.right
+        ) &&
+        player.sprite !== player.sprites.stand.right
+      ) {
+        player.frame = 0
+        player.sprite = player.sprites.stand.right
+      }
+
+      break
+
+    case 'running':
+
+      if (keys.right.pressed && lastKey === 'right' && player.sprite !== player.sprites.run.right) {
+        player.frame = 0;
+        player.sprite = player.sprites.run.right;
+      }
+      else if (keys.left.pressed && lastKey === 'left' && player.sprite !== player.sprites.run.left) {
+        player.frame = 0;
+        player.sprite = player.sprites.run.left;
+      }
+
+      break
+
+    case 'jumping':
+    case 'falling':
+
+      if (lastKey === 'left' && player.sprite !== player.sprites.jump.left) {
+        player.sprite = player.sprites.jump.left
+      }
+      else if (
+        (lastKey === 'right' || !lastKey) &&
+        player.sprite !== player.sprites.jump.right
+      ) {
+        player.sprite = player.sprites.jump.right
+      }
+
+      break
+
   }
 
   // WIN
@@ -546,22 +605,40 @@ function game() {
 
       // LEFT (A)
       case 65:
+
         keys.left.pressed = true
+
         lastKey = 'left'
-//        player.sprite = player.sprites.run.left
+
+        if (player.state !== 'jumping' && player.state !== 'falling') {
+          player.state = 'running'
+        }
+
         break
 
       // RIGHT (D)
       case 68:
+
         keys.right.pressed = true
+
         lastKey = 'right'
-//        player.sprite = player.sprites.run.right
+
+        if (player.state !== 'jumping' && player.state !== 'falling') {
+          player.state = 'running'
+        }
+
         break
 
       // JUMP (SPACE)
       case 32:
+
         keys.space.pressed = true
-        if (!player.velocity.y) { player.velocity.y -= 10 } // only can jump when feet are on ground
+
+        if (player.state === 'standing' || player.state === 'running') {
+          player.state = 'jumping'
+          player.velocity.y -= 10
+        }
+
         break
 
     }
@@ -574,14 +651,24 @@ function game() {
 
       // LEFT (A)
       case 65:
+
         keys.left.pressed = false
-//        player.sprite = player.sprites.stand.left
+
+        if (player.state !== 'jumping' && player.state !== 'falling') {
+          player.state = 'standing'
+        }
+
         break
 
       // RIGHT (D)
       case 68:
+
         keys.right.pressed = false
-//        player.sprite = player.sprites.stand.right
+
+        if (player.state !== 'jumping' && player.state !== 'falling') {
+          player.state = 'standing'
+        }
+
         break
 
       // JUMP (SPACE)
@@ -591,7 +678,6 @@ function game() {
 
     }
   });
-
 
 } // GAME
 
