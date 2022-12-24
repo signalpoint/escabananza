@@ -7,6 +7,10 @@ class Layer {
       y
     }
 
+    this.velocity = {
+      x: 0
+    }
+
     this.image = image
     this.width = image.width
     this.height = image.height
@@ -91,7 +95,7 @@ class Layer {
 
       this.scrollVal = this.position.x
 
-      // TODO if scroll speed id 1 (aka no scrolling), there is probably a faster way to call drawImage without
+      // TODO if scroll speed is 1 (aka no scrolling), there is probably a faster way to call drawImage without
       // the src and destination args!
 
       c.drawImage(this.image,
@@ -122,6 +126,11 @@ class Layer {
 
     }
 
+  } // draw
+
+  update() {
+    this.draw()
+    this.position.x += this.velocity.x
   }
 
 } // Layer
