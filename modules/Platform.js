@@ -1,6 +1,6 @@
 class Platform {
 
-    constructor({ x, y, width, height, image }) {
+    constructor({ x, y, width, height, image, block }) {
 
       // position
       this.position = {
@@ -8,9 +8,15 @@ class Platform {
         y
       }
 
+      this.velocity = {
+        x: 0
+      }
+
       this.image = image
       this.width = width || image.width
       this.height = height || image.height
+
+      this.block = block
 
     }
 
@@ -25,6 +31,11 @@ class Platform {
       c.fillStyle = pattern;
       c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
+    }
+
+    update() {
+      this.draw()
+      this.position.x += this.velocity.x
     }
 
   }
