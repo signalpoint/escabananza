@@ -142,4 +142,21 @@ class BadBush extends Sprite {
 
   }
 
+  explode() {
+    for (let j = 0; j < 50; j++) {
+      particles.push(new Particle({
+        position: {
+          x: this.position.x + this.width / 2,
+          y: this.position.y + this.height / 2
+        },
+        velocity: {
+          x: (Math.random() - .5) * 5,
+          y: (Math.random() - .5) * 5
+        },
+        radius: Math.random() * 3,
+        color: '#223325'
+      }));
+    }
+  }
+
 } // BADBUSH
