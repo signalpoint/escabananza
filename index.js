@@ -151,6 +151,8 @@ let foregrounds = null
 
 let badbushes = null
 
+let particles = null
+
 let snowflowers = null
 
 // HELPERS
@@ -337,6 +339,9 @@ var init = function() {
 
   ]
 
+  // PARTICLES
+  particles = []
+
   // SNOW FLOWERS
 
   snowflowers = [
@@ -417,6 +422,7 @@ function animate() {
     badbush.update()
 
     // Player jumps on BadBush
+    // BadBush Squish
     if (collisionTop({
       obj1: player,
       obj2: badbush
@@ -424,6 +430,21 @@ function animate() {
 
       player.velocity.y -= 15 // trampoline
       player.state = 'jumping'
+
+      for (let j = 0; j < 50; j++) {
+        particles.push(new Particle({
+          position: {
+            x: badbush.position.x + badbush.width / 2,
+            y: badbush.position.y + badbush.height / 2
+          },
+          velocity: {
+            x: (Math.random() - .5) * 5,
+            y: (Math.random() - .5) * 5
+          },
+          radius: Math.random() * 3,
+          color: '#223325'
+        }));
+      }
 
       badbushes.splice(i, 1) // remove bad bush
 
@@ -449,6 +470,11 @@ function animate() {
 
     }
 
+  })
+
+  // Draw Particles
+  particles.forEach((particle) => {
+    particle.update()
   })
 
   // Draw Player
@@ -518,6 +544,10 @@ function animate() {
           badbush.position.x -= player.speed
         })
 
+        particles.forEach(particle => {
+          particle.position.x -= player.speed
+        })
+
         foregrounds.forEach(foreground => {
           foreground.velocity.x = -player.speed * foreground.scrollSpeed // parallax scroll
         })
@@ -562,6 +592,10 @@ function animate() {
           badbush.position.x += player.speed
         })
 
+        particles.forEach(particle => {
+          particle.position.x += player.speed
+        })
+
         foregrounds.forEach(foreground => {
           foreground.velocity.x = player.speed * foreground.scrollSpeed // parallax scroll
         })
@@ -583,6 +617,8 @@ function animate() {
       object: player,
       platform
     })) { player.velocity.y = 0 }
+
+    // BLOCKS
 
     if (platform.block) {
 
@@ -656,6 +692,30 @@ function animate() {
         // gravity IS pulling, so since the bush is on the platform, stop its y velocity
         else { badbush.velocity.y = 0 }
 
+      }
+
+    })
+
+    // PLATFORM + PARTICLES
+
+    particles.forEach((particle, i) => {
+
+      // particules bouncing
+      if (isCircleOnTopOfPlatform({
+        object: particle,
+        platform
+      })) {
+        particle.velocity.y *= -1 * .9
+        if (particle.radius -.4 < 0) {
+          particles.splice(i, 1)
+        }
+        else {
+          particle.radius -= .4
+        }
+      }
+
+      if (particle.ttl < 0) {
+        particles.splice(i, 1)
       }
 
     })
@@ -795,6 +855,16 @@ function collisionTop({obj1, obj2}) {
     obj1.position.y + obj1.height + obj1.velocity.y >= obj2.position.y &&
     obj1.position.x + obj1.width >= obj2.position.x &&
     obj1.position.x <= obj2.position.x + obj2.width
+
+}
+
+function isCircleOnTopOfPlatform({object, platform}) {
+
+  // (rectangular collision detection)
+  return object.position.y + object.radius <= platform.position.y &&
+    object.position.y + object.radius + object.velocity.y >= platform.position.y &&
+    object.position.x + object.radius >= platform.position.x &&
+    object.position.x <= platform.position.x + platform.width
 
 }
 
