@@ -23,6 +23,12 @@ let assets = {
     src: 'img/platform-tall.png'
   },
 
+  // BLOCKS
+
+  triBlock: {
+    src: 'img/tri-block.png'
+  },
+
   // PLAYER
 
   standLeft: {
@@ -188,7 +194,8 @@ var init = function() {
     x: 0,
     y: platformDefaultY,
     width: platformWidth * 1.5,
-    image: assets.platform
+    image: assets.platform,
+//    block: true // hmmm, player can't move if this one is a block, makes sense, player is stuck in a collision
   }));
 
   // 1
@@ -196,7 +203,8 @@ var init = function() {
     x: platforms[0].position.x + platforms[0].width + 100,
     y: platformDefaultY,
     width: platformWidth,
-    image: assets.platform
+    image: assets.platform,
+    block: true
   }));
 
   // 2 - tall platform
@@ -211,7 +219,8 @@ var init = function() {
     x: platforms[1].position.x + platforms[1].width + 150,
     y: platformDefaultY,
     width: platformWidth * 2,
-    image: assets.platform
+    image: assets.platform,
+    block: true
   }));
 
   // 4
@@ -219,14 +228,25 @@ var init = function() {
     x: platforms[3].position.x + platforms[3].width + 200,
     y: platformDefaultY,
     width: platformWidth / 2,
-    image: assets.platform
+    image: assets.platform,
+    block: true
   }));
 
   // 5
   platforms.push(new Platform({
     x: platforms[4].position.x + platforms[4].width + 250,
     y: platformDefaultY,
-    image: assets.platform
+    image: assets.platform,
+    block: true
+  }));
+
+  // 6 - block
+  platforms.push(new Platform({
+    x: platforms[0].position.x + Math.round(platforms[0].width*.25),
+    y: platformDefaultY - 108,
+    width: 96,
+    image: assets.triBlock,
+    block: true
   }));
 
   // BACKGROUNDS
@@ -252,7 +272,7 @@ var init = function() {
 
     // OAK TREE
     new Background({
-      x: platforms[0].position.x + platforms[0].width * .38,
+      x: platforms[0].position.x + platforms[0].width * .7,
       y: platforms[0].position.y - assets.oakTree.height,
       image: assets.oakTree
     })
@@ -313,12 +333,14 @@ function animate() {
 
   // Draw Backgrounds
   backgrounds.forEach(background => {
-    background.draw()
+    background.update()
+    background.velocity.x = 0
   })
 
   // Draw Platforms
   platforms.forEach(platform => {
-    platform.draw()
+    platform.update()
+    platform.velocity.x = 0
   })
 
   // Draw BadBushes
@@ -353,10 +375,13 @@ function animate() {
 
   // Draw Foregrounds
   foregrounds.forEach(foreground => {
-    foreground.draw()
+    foreground.update()
+    foreground.velocity.x = 0
   })
 
   // PLAYER MOVEMENT
+
+  let hitSide = false
 
   if (keys.right.pressed && player.position.x < 400 /* right edge */) {
     player.velocity.x = player.speed
@@ -377,44 +402,82 @@ function animate() {
 
     if (keys.right.pressed) {
 
-      scrollOffset += player.speed
+      for (let i = 0; i < platforms.length; i++) {
 
-      platforms.forEach(platform => {
-        platform.position.x -= player.speed
-      })
+        const platform = platforms[i];
 
-      backgrounds.forEach(background => {
-        background.position.x -= player.speed * background.scrollSpeed // parallax scroll
-      })
+        platform.velocity.x = -player.speed
 
-      badbushes.forEach(badbush => {
-        badbush.position.x -= player.speed
-      })
+        if (platform.block && hitSideOfPlatform({
+          object: player,
+          platform
+        })) {
+          platforms.forEach(platform => {
+            platform.velocity.x = 0
+          })
+          hitSide = true
+          break
+        }
 
-      foregrounds.forEach(foreground => {
-        foreground.position.x -= player.speed * foreground.scrollSpeed // parallax scroll
-      })
+      }
+
+      if (!hitSide) {
+
+        scrollOffset += player.speed
+
+        backgrounds.forEach(background => {
+          background.velocity.x = -player.speed * background.scrollSpeed // parallax scroll
+        })
+
+        badbushes.forEach(badbush => {
+          badbush.position.x -= player.speed
+        })
+
+        foregrounds.forEach(foreground => {
+          foreground.velocity.x = -player.speed * foreground.scrollSpeed // parallax scroll
+        })
+
+      }
 
     }
     else if (keys.left.pressed && scrollOffset > 0 /* left edge */) {
 
-      scrollOffset -= player.speed
+      for (let i = 0; i < platforms.length; i++) {
 
-      platforms.forEach(platform => {
-        platform.position.x += player.speed
-      })
+        const platform = platforms[i];
 
-      backgrounds.forEach(background => {
-        background.position.x += player.speed * background.scrollSpeed // parallax scroll
-      })
+        platform.velocity.x = player.speed
 
-      badbushes.forEach(badbush => {
-        badbush.position.x += player.speed
-      })
+        if (platform.block && hitSideOfPlatform({
+          object: player,
+          platform
+        })) {
+          platforms.forEach(platform => {
+            platform.velocity.x = 0
+          })
+          hitSide = true
+          break
+        }
 
-      foregrounds.forEach(foreground => {
-        foreground.position.x += player.speed * foreground.scrollSpeed // parallax scroll
-      })
+      }
+
+      if (!hitSide) {
+
+        scrollOffset -= player.speed
+
+        backgrounds.forEach(background => {
+          background.velocity.x = player.speed * background.scrollSpeed // parallax scroll
+        })
+
+        badbushes.forEach(badbush => {
+          badbush.position.x += player.speed
+        })
+
+        foregrounds.forEach(foreground => {
+          foreground.velocity.x = player.speed * foreground.scrollSpeed // parallax scroll
+        })
+
+      }
 
     }
 
@@ -431,6 +494,22 @@ function animate() {
       object: player,
       platform
     })) { player.velocity.y = 0 }
+
+    if (platform.block) {
+
+      if (isAtBottomOfPlatform({
+        object: player,
+        platform
+      })) {
+        player.velocity.y *= -1
+      }
+
+      if (hitSideOfPlatform({
+        object: player,
+        platform
+      })) { player.velocity.x = 0 }
+
+    }
 
     // PLATFORM + BAD BUSHES
 
@@ -565,12 +644,29 @@ function isOnTopOfPlatform({object, platform}) {
 
 }
 
+function isAtBottomOfPlatform({object, platform}) {
+
+  // (rectangular collision detection)
+  return object.position.y >= platform.position.y + platform.height &&
+    object.position.y + object.velocity.y <= platform.position.y + platform.height &&
+    object.position.x + object.width >= platform.position.x &&
+    object.position.x <= platform.position.x + platform.width
+
+}
+
 function isAtLeftOfPlatform({object, platform}) {
   return object.position.x === platform.position.x
 }
 
 function isAtRightOfPlatform({object, platform}) {
   return object.position.x + object.width - 1 === platform.position.x + platform.width - 1
+}
+
+function hitSideOfPlatform({object, platform}) {
+  return object.position.x + object.width + object.velocity.x - platform.velocity.x >= platform.position.x &&
+    object.position.x + object.velocity.x <= platform.position.x + platform.width &&
+    object.position.y <= platform.position.y + platform.height &&
+    object.position.y + object.height >= platform.position.y
 }
 
 function collisionTop({obj1, obj2}) {
