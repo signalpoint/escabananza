@@ -59,6 +59,10 @@ let assets = {
     src: 'img/sprites/bad-bush/walkRight.png'
   },
 
+  snowFlowerPlanted: {
+    src: 'img/sprites/snow-flower.png'
+  },
+
   // TREES
 
   oakTree: {
@@ -124,11 +128,16 @@ let backgrounds = null
 
 let foregrounds = null
 
+let badbushes = null
+
+let snowflowers = null
+
 // HELPERS
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
+
 function randomBadBush() {
   return new BadBush({
     position: {
@@ -194,7 +203,7 @@ var init = function() {
     x: 0,
     y: platformDefaultY,
     width: platformWidth * 1.5,
-    image: assets.platform,
+    image: assets.platform
 //    block: true // hmmm, player can't move if this one is a block, makes sense, player is stuck in a collision
   }));
 
@@ -241,13 +250,13 @@ var init = function() {
   }));
 
   // 6 - block
-  platforms.push(new Platform({
-    x: platforms[0].position.x + Math.round(platforms[0].width*.25),
-    y: platformDefaultY - 108,
-    width: 96,
-    image: assets.triBlock,
-    block: true
-  }));
+//  platforms.push(new Platform({
+//    x: platforms[0].position.x + Math.round(platforms[0].width*.25),
+//    y: platformDefaultY - 108,
+//    width: 96,
+//    image: assets.triBlock,
+//    block: true
+//  }));
 
   // BACKGROUNDS
 
@@ -279,6 +288,8 @@ var init = function() {
 
   ]
 
+  // BAD BUSHES
+
   badbushes = [
 
     new BadBush({
@@ -299,6 +310,23 @@ var init = function() {
       },
       velocity: {
         x: -1,
+        y: 0
+      }
+    })
+
+  ]
+
+  // SNOW FLOWERS
+
+  snowflowers = [
+
+    new SnowFlower({
+      position: {
+        x: Math.round(platforms[0].position.x + platforms[0].width * .7),
+        y: platforms[1].position.y - 420
+      },
+      velocity: {
+        x: 0,
         y: 0
       }
     })
@@ -341,6 +369,23 @@ function animate() {
   platforms.forEach(platform => {
     platform.update()
     platform.velocity.x = 0
+  })
+
+  // Draw SnowFlowers
+  snowflowers.forEach((snowflower, i) => {
+
+    if (objectsTouch({
+      obj1: player,
+      obj2: snowflower
+    })) {
+      setTimeout(() => {
+        snowflowers.splice(i, 1)
+      }, 0)
+    }
+    else {
+      snowflower.update()
+    }
+
   })
 
   // Draw BadBushes
@@ -429,6 +474,10 @@ function animate() {
           background.velocity.x = -player.speed * background.scrollSpeed // parallax scroll
         })
 
+        snowflowers.forEach(snowflower => {
+          snowflower.position.x -= player.speed
+        })
+
         badbushes.forEach(badbush => {
           badbush.position.x -= player.speed
         })
@@ -467,6 +516,10 @@ function animate() {
 
         backgrounds.forEach(background => {
           background.velocity.x = player.speed * background.scrollSpeed // parallax scroll
+        })
+
+        snowflowers.forEach(snowflower => {
+          snowflower.position.x += player.speed
         })
 
         badbushes.forEach(badbush => {
@@ -510,6 +563,25 @@ function animate() {
       })) { player.velocity.x = 0 }
 
     }
+
+    // PLATFORM + SNOW FLOWERS
+
+    snowflowers.forEach(snowflower => {
+
+      // bush on top of platform
+      if (isOnTopOfPlatform({
+        object: snowflower,
+        platform
+      })) {
+
+        // the flower is on the platform...
+
+        // gravity IS pulling, so since the bush is on the platform, stop its y velocity
+        snowflower.velocity.y = 0
+
+      }
+
+    })
 
     // PLATFORM + BAD BUSHES
 
@@ -667,6 +739,13 @@ function hitSideOfPlatform({object, platform}) {
     object.position.x + object.velocity.x <= platform.position.x + platform.width &&
     object.position.y <= platform.position.y + platform.height &&
     object.position.y + object.height >= platform.position.y
+}
+
+function objectsTouch({obj1, obj2}) {
+  return obj1.position.x + obj1.width >= obj2.position.x &&
+    obj1.position.x <= obj2.position.x + obj2.width &&
+    obj1.position.y + obj1.height >= obj2.position.y &&
+    obj1.position.y <= obj2.position.y + obj2.height
 }
 
 function collisionTop({obj1, obj2}) {
