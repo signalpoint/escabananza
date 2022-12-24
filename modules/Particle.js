@@ -1,6 +1,6 @@
 class Particle {
 
-  constructor({ position, velocity, radius, color = 'blue' }) {
+  constructor({ position, velocity, radius, color = 'blue', snowball = false }) {
 
     this.position = {
       x: position.x,
@@ -15,6 +15,8 @@ class Particle {
     this.radius = radius
 
     this.color = color
+
+    this.snowball = snowball
 
     this.ttl = 300
 
