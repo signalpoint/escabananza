@@ -31,6 +31,7 @@ let assets = {
 
   // PLAYER
 
+  // default
   standLeft: {
     src: 'img/sprites/frankenstein/standLeft.png'
   },
@@ -48,6 +49,26 @@ let assets = {
   },
   jumpRight: {
     src: 'img/sprites/frankenstein/jumpRight.png'
+  },
+
+  // snow
+  standLeftSnow: {
+    src: 'img/sprites/frankenstein/snow/standLeft.png'
+  },
+  standRightSnow: {
+    src: 'img/sprites/frankenstein/snow/standRight.png'
+  },
+  runLeftSnow: {
+    src: 'img/sprites/frankenstein/snow/walkLeft.png'
+  },
+  runRightSnow: {
+    src: 'img/sprites/frankenstein/snow/walkRight.png'
+  },
+  jumpLeftSnow: {
+    src: 'img/sprites/frankenstein/snow/jumpLeft.png'
+  },
+  jumpRightSnow: {
+    src: 'img/sprites/frankenstein/snow/jumpRight.png'
   },
 
   // BAD BUSH
@@ -374,12 +395,14 @@ function animate() {
   // Draw SnowFlowers
   snowflowers.forEach((snowflower, i) => {
 
+    // If player obtains the SnowFlower power up, activate it.
     if (objectsTouch({
       obj1: player,
       obj2: snowflower
     })) {
       setTimeout(() => {
         snowflowers.splice(i, 1)
+        player.activatePowerUp('snow')
       }, 0)
     }
     else {
@@ -393,7 +416,7 @@ function animate() {
 
     badbush.update()
 
-    // KILL BadBush
+    // Player jumps on BadBush
     if (collisionTop({
       obj1: player,
       obj2: badbush
@@ -406,12 +429,25 @@ function animate() {
 
     }
 
-    // DEATH | BadBush Kills You
+    // BadBush Hits the Player
     else if (
       player.position.x + player.width >= badbush.position.x &&
       player.position.y + player.height >= badbush.position.y &&
       player.position.x <= badbush.position.x + badbush.width
-    ) { init() }
+    ) {
+
+      if (player.powerUps.snowFlower) {
+
+        player.removePowerUp('snow')
+
+        player.makeInvincible(1500)
+
+      }
+      else if (!player.invincible) {
+        init()
+      }
+
+    }
 
   })
 
@@ -697,9 +733,13 @@ function animate() {
   }
 
   // WIN
+
+
   if (scrollOffset > assets.platform.width * 5 + (850 - 400)) { console.log('you win!') }
 
   // LOSE
+
+  // Fall below canvas.
   if (player.position.y > canvas.height) { init() }
 
 } // animate
