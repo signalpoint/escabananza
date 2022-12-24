@@ -914,8 +914,8 @@ function game() {
 
         break
 
-      // JUMP (SPACE)
-      case 32:
+      // JUMP (W)
+      case 87:
 
         keys.space.pressed = true
 
@@ -923,6 +923,11 @@ function game() {
           player.state = 'jumping'
           player.velocity.y -= 10
         }
+
+        break
+
+      // USE POWER UP (SPACE)
+      case 32:
 
         break
 
@@ -956,9 +961,14 @@ function game() {
 
         break
 
-      // JUMP (SPACE)
-      case 32:
+      // JUMP (W)
+      case 87:
         keys.space.pressed = false
+        break
+
+      // USE POWER UP (SPACE)
+      case 32:
+
         break
 
     }
