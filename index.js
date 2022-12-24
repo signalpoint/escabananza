@@ -421,7 +421,20 @@ function animate() {
 
     badbush.update()
 
-    // Player jumps on BadBush
+    // snowball particles hit bad bush
+    particles.filter(particle => particle.snowball).forEach((particle, particleIndex) => {
+      if (
+        particle.position.x + particle.radius >= badbush.position.x &&
+        particle.position.y + particle.radius >= badbush.position.y &&
+        particle.position.x - particle.radius <= badbush.position.x + badbush.width &&
+        particle.position.y - particle.radius <= badbush.position.y + badbush.height
+      ) {
+        badbush.explode()
+        badbushes.splice(i, 1)
+        particles.splice(particleIndex, 1)
+      }
+    })
+
     // BadBush Squish
     if (collisionTop({
       obj1: player,
@@ -431,20 +444,7 @@ function animate() {
       player.velocity.y -= 15 // trampoline
       player.state = 'jumping'
 
-      for (let j = 0; j < 50; j++) {
-        particles.push(new Particle({
-          position: {
-            x: badbush.position.x + badbush.width / 2,
-            y: badbush.position.y + badbush.height / 2
-          },
-          velocity: {
-            x: (Math.random() - .5) * 5,
-            y: (Math.random() - .5) * 5
-          },
-          radius: Math.random() * 3,
-          color: '#223325'
-        }));
-      }
+      badbush.explode()
 
       badbushes.splice(i, 1) // remove bad bush
 
@@ -473,8 +473,20 @@ function animate() {
   })
 
   // Draw Particles
-  particles.forEach((particle) => {
+  particles.forEach((particle, i) => {
+
     particle.update()
+
+    // Remove particles that go outside the canvas.
+    if (particle.snowball && (
+      particle.position.x - particle.radius >= canvas.width ||
+      particle.position.x + particle.radius <= 0
+    )) {
+      setTimeout(() => {
+        particles.splice(i, 1)
+      }, 0)
+    }
+
   })
 
   // Draw Player
@@ -705,7 +717,7 @@ function animate() {
         object: particle,
         platform
       })) {
-        particle.velocity.y *= -1 * .9
+        particle.velocity.y *= -1 * .99
         if (particle.radius -.4 < 0) {
           particles.splice(i, 1)
         }
@@ -928,6 +940,23 @@ function game() {
 
       // USE POWER UP (SPACE)
       case 32:
+
+        if (!player.powerUps.snowFlower) return
+
+        // throw a snow ball
+        particles.push(new Particle({
+          position: {
+            x: player.position.x + player.width / 2,
+            y: player.position.y + player.height / 2
+          },
+          velocity: {
+            x: lastKey == 'right' ? 12 : -12,
+            y: 0
+          },
+          radius: 5,
+          color: '#2eb5ef',
+          snowball: true
+        }))
 
         break
 
