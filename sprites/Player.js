@@ -96,11 +96,63 @@ class Player extends Sprite {
     }
     this.sprite = this.sprites.stand.right
 
+    this.opacity = 1
+
+    this.invincible = false
+    this.makeInvincible = function(duration) {
+      this.invincible = true
+      setTimeout(() => {
+        this.invincible = false
+      }, duration)
+    }
+
+    this.powerUps = {
+      snowFlower: false
+    }
+
+    this.activatePowerUp = function(powerUp) {
+      switch (powerUp) {
+        case 'snow':
+          this.powerUps.snowFlower = true
+          this.setSpriteSet('snow')
+          break;
+      }
+    }
+    this.removePowerUp = function(powerUp) {
+      switch (powerUp) {
+        case 'snow': this.powerUps.snowFlower = false; break;
+      }
+      this.setSpriteSet()
+    }
+
+    this.setSpriteSet = function(set) {
+      const {sprites} = this
+      switch (set) {
+        case 'snow':
+          sprites.stand.right.img = assets.standRightSnow
+          sprites.stand.left.img = assets.standLeftSnow
+          sprites.run.right.img = assets.runRightSnow
+          sprites.run.left.img = assets.runLeftSnow
+          sprites.jump.right.img = assets.jumpRightSnow
+          sprites.jump.left.img = assets.jumpLeftSnow
+          break;
+        default:
+          sprites.stand.right.img = assets.standRight
+          sprites.stand.left.img = assets.standLeft
+          sprites.run.right.img = assets.runRight
+          sprites.run.left.img = assets.runLeft
+          sprites.jump.right.img = assets.jumpRight
+          sprites.jump.left.img = assets.jumpLeft
+          break;
+      }
+    }
+
   }
 
   update() {
 
     this.frame++
+    const {sprite, sprites} = this
 
     // SPRITE ANIMATION
 
@@ -108,27 +160,14 @@ class Player extends Sprite {
 
     // ANIMATION ARRAY
 
-    if (this.sprite.animation) {
-
-//      if (
-//        this.frame >= this.sprite.animation.length && (
-//          this.sprite.img === this.sprites.stand.left.img ||
-//          this.sprite.img === this.sprites.stand.right.img
-//        )
-//      ) { this.frame = 0 }
-//      else if (
-//        this.frame >= this.sprite.animation.length && (
-//          this.sprite.img === this.sprites.run.left.img ||
-//          this.sprite.img === this.sprites.run.right.img
-//        )
-//      ) { this.frame = 0 }
+    if (sprite.animation) {
 
       if (
 
-        this.frame >= this.sprite.animation.length && (
+        this.frame >= sprite.animation.length && (
 
-          (this.sprite.img === this.sprites.stand.left.img || this.sprite.img === this.sprites.stand.right.img) ||
-          (this.sprite.img === this.sprites.run.left.img || this.sprite.img === this.sprites.run.right.img)
+          (sprite.img === sprites.stand.left.img || sprite.img === sprites.stand.right.img) ||
+          (sprite.img === sprites.run.left.img || sprite.img === sprites.run.right.img)
         )
 
       ) { this.frame = 0 }
@@ -140,13 +179,13 @@ class Player extends Sprite {
 
       // TODO use a "frames" property instead of the "animation" property to support classic mode
 
-      if (this.frame >= this.sprites.stand.frames && (this.sprite === this.sprites.stand.left || this.sprite === this.sprites.stand.right)) {
+      if (this.frame >= sprites.stand.frames && (sprite === sprites.stand.left || sprite === sprites.stand.right)) {
         this.frame = 0
       }
-      else if (this.frame >= this.sprites.run.frames && (this.sprite === this.sprites.run.left || this.sprite === this.sprites.run.right)) {
+      else if (this.frame >= sprites.run.frames && (sprite === sprites.run.left || sprite === sprites.run.right)) {
         this.frame = 0
       }
-      else if (this.sprite === this.sprites.jump.right || this.sprite === this.sprites.jump.left) {
+      else if (sprite === sprites.jump.right || sprite === sprites.jump.left) {
         this.frame = 0
       }
 
@@ -163,6 +202,44 @@ class Player extends Sprite {
 //      else { // bottom
 //        this.velocity.y = 0
 //      }
+
+    // Flicker effect when losing power up.
+    if (this.invincible) {
+      if (this.opacity === 1) this.opacity = 0
+      else this.opacity = 1
+    }
+    else this.opacity = 1
+
+  }
+
+  // override Sprite.draw()...
+
+  draw() {
+
+    c.save()
+    c.globalAlpha = this.opacity
+
+    c.drawImage(
+
+      this.sprite.img,
+
+      this.sprite.animation ?
+
+        this.width * this.sprite.animation[this.frame] : // ANIMATION ARRAY
+        this.width * this.frame, // CLASSIC
+
+      0,
+      this.width,
+      this.height,
+
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+
+    )
+
+    c.restore()
 
   }
 
