@@ -22,8 +22,15 @@ let assets = {
   platformTall: {
     src: 'img/platform-tall.png'
   },
+  platformXTall: {
+    src: 'img/xtall-platform.png'
+  },
 
   // BLOCKS
+
+  singleBlock: {
+    src: 'img/single-block.png'
+  },
 
   triBlock: {
     src: 'img/tri-block.png'
@@ -138,10 +145,12 @@ const gravity = 0.5
 // PLAYER
 
 let player = null
+let playerJumpVelocity = 12
 
 // SCROLL OFFSET
 
 let scrollOffset = 0 // WIN: "let" means it changes over time
+const scrollOffsetFinish = 5000
 
 let platforms = null
 
@@ -219,58 +228,129 @@ var init = function() {
 
   // PLATFORMS
 
-  platforms = []
+  // Place generic in-game platforms first...
 
-  // 0
-  platforms.push(new Platform({
-    x: 0,
-    y: platformDefaultY,
-    width: platformWidth * 1.5,
-    image: assets.platform
-//    block: true // hmmm, player can't move if this one is a block, makes sense, player is stuck in a collision
-  }));
+  platforms = [
 
-  // 1
-  platforms.push(new Platform({
-    x: platforms[0].position.x + platforms[0].width + 100,
-    y: platformDefaultY,
-    width: platformWidth,
-    image: assets.platform,
-    block: true
-  }));
+    // tri block + single block stack
+    new Platform({
+      x: 360 + 128,
+      y: 350,
+      image: assets.triBlock,
+      block: true
+    }),
+    new Platform({
+      x: 360 + 128 + assets.singleBlock.width,
+      y: 225,
+      image: assets.singleBlock,
+      block: true
+    }),
 
-  // 2 - tall platform
-  platforms.push(new Platform({
-    x: platforms[1].position.x + platforms[1].width + 150 + (platformWidth * 1.66),
-    y: platformDefaultY - 100,
-    image: assets.platformTall
-  }));
+    // tall platform
+    new Platform({
+      x: 1230 + assets.platform.width - assets.platformTall.width,
+      y: canvas.height - assets.platform.height - assets.platformTall.width,
+      image: assets.platformTall
+    }),
 
-  // 3
-  platforms.push(new Platform({
-    x: platforms[1].position.x + platforms[1].width + 150,
-    y: platformDefaultY,
-    width: platformWidth * 2,
-    image: assets.platform,
-    block: true
-  }));
+    // 2 single block (blocks their path, forces them to jump over)
+    new Platform({
+      x: 1230 + (assets.platform.width / 2),
+      y: platformDefaultY - assets.singleBlock.height,
+      image: assets.singleBlock,
+      block: true
+    }),
+    new Platform({
+      x: 1230 + (assets.platform.width / 2),
+      y: platformDefaultY - assets.singleBlock.height * 2,
+      image: assets.singleBlock,
+      block: true
+    })
 
-  // 4
-  platforms.push(new Platform({
-    x: platforms[3].position.x + platforms[3].width + 200,
-    y: platformDefaultY,
-    width: platformWidth / 2,
-    image: assets.platform,
-    block: true
-  }));
+  ]
 
-  // 5
-  platforms.push(new Platform({
-    x: platforms[4].position.x + platforms[4].width + 250,
-    y: platformDefaultY,
-    image: assets.platform,
-    block: true
-  }));
+  // Build level platforms map...
+
+  const platformsMap = [
+    'lg',
+    'lg',
+    'gap',
+    'lg',
+    'lg',
+    'gap',
+    'gap',
+    'lg',
+    'lg',
+    'gap',
+    'tall',
+    'tall',
+    'gap',
+    'gap',
+    'lg',
+    'tall',
+    'tall',
+    'gap',
+    'xtall',
+    'xtall',
+    'gap',
+    'xtall',
+    'xtall',
+    'gap',
+    'gap',
+    'xtall',
+    'xtall',
+    'gap',
+    'gap',
+    'lg',
+    'lg'
+  ]
+
+  // Place level platforms onto collection...
+
+  let platformDistance = 0
+
+  platformsMap.forEach(symbol => {
+    switch (symbol) {
+
+      case 'lg':
+        platforms.push(new Platform({
+          x: platformDistance,
+          y: canvas.height - assets.platform.height,
+          width: platformWidth,
+          image: assets.platform,
+//          block: true, // causes hitSideOfPlatform() to trigger upon game start, i.e. can't move, x velocity always 0
+          text: platformDistance
+        }))
+        platformDistance += platformWidth
+        break;
+
+      case 'gap':
+        platformDistance += 150
+        break;
+
+      case 'tall':
+        platforms.push(new Platform({
+          x: platformDistance,
+          y: canvas.height - assets.platformTall.height,
+          image: assets.platformTall,
+          text: platformDistance
+        }))
+        platformDistance += assets.platformTall.width // hmmm?
+        break;
+
+      case 'xtall':
+        platforms.push(new Platform({
+          x: platformDistance,
+          y: canvas.height - assets.platformXTall.height,
+          image: assets.platformXTall,
+          text: platformDistance
+        }))
+        platformDistance += assets.platformXTall.width // hmmm?
+        break;
+
+    }
+
+  })
 
   // 6 - block
 //  platforms.push(new Platform({
@@ -300,14 +380,14 @@ var init = function() {
       y: 0,
       image: assets.hills,
       scrollSpeed: .33
-    }),
+    })
 
     // OAK TREE
-    new Background({
-      x: platforms[0].position.x + platforms[0].width * .7,
-      y: platforms[0].position.y - assets.oakTree.height,
-      image: assets.oakTree
-    })
+//    new Background({
+//      x: 420,
+//      y: canvas.height - assets.platform.height - assets.oakTree.height,
+//      image: assets.oakTree
+//    })
 
   ]
 
@@ -317,8 +397,8 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: Math.round(platforms[1].position.x + platforms[1].width * .75),
-        y: platforms[1].position.y - assets.badBushWalkLeft.height
+        x: 600,
+        y: platformDefaultY - 100
       },
       velocity: {
         x: -1,
@@ -328,8 +408,41 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: Math.round(platforms[3].position.x + platforms[3].width * .22),
-        y: platforms[3].position.y - 100
+        x: 1270,
+        y: platformDefaultY - 100
+      },
+      velocity: {
+        x: -1,
+        y: 0
+      }
+    }),
+
+    new BadBush({
+      position: {
+        x: 2000,
+        y: platformDefaultY - 100
+      },
+      velocity: {
+        x: -1,
+        y: 0
+      }
+    }),
+
+    new BadBush({
+      position: {
+        x: 2500,
+        y: platformDefaultY - 100
+      },
+      velocity: {
+        x: -1,
+        y: 0
+      }
+    }),
+
+    new BadBush({
+      position: {
+        x: 3570,
+        y: canvas.height - assets.platformTall.height - assets.badBushWalkLeft.height
       },
       velocity: {
         x: -1,
@@ -348,8 +461,8 @@ var init = function() {
 
     new SnowFlower({
       position: {
-        x: Math.round(platforms[0].position.x + platforms[0].width * .7),
-        y: platforms[1].position.y - 420
+        x: 192,
+        y: 96
       },
       velocity: {
         x: 0,
@@ -365,7 +478,7 @@ var init = function() {
 
     // BIRCH TREE
 //    new Foreground({
-//      x: platforms[0].position.x + platforms[0].width *.66,
+//      x: platforms[0].position.x + platforms[0].width *.9,
 //      y: platforms[0].position.y - assets.birchTree.height,
 //      image: assets.birchTree
 //    })
@@ -441,7 +554,7 @@ function animate() {
       obj2: badbush
     })) {
 
-      player.velocity.y -= 15 // trampoline
+      player.velocity.y -= playerJumpVelocity * 1.4 // trampoline
       player.state = 'jumping'
 
       badbush.explode()
@@ -638,7 +751,7 @@ function animate() {
         object: player,
         platform
       })) {
-        player.velocity.y *= -1
+        player.velocity.y = -player.velocity.y
       }
 
       if (hitSideOfPlatform({
@@ -652,7 +765,7 @@ function animate() {
 
     snowflowers.forEach(snowflower => {
 
-      // bush on top of platform
+      // snow flower on top of platform
       if (isOnTopOfPlatform({
         object: snowflower,
         platform
@@ -807,7 +920,9 @@ function animate() {
   // WIN
 
 
-  if (scrollOffset > assets.platform.width * 5 + (850 - 400)) { console.log('you win!') }
+  if (scrollOffset > scrollOffsetFinish) {
+    console.log('you win!')
+  }
 
   // LOSE
 
@@ -933,7 +1048,7 @@ function game() {
 
         if (player.state === 'standing' || player.state === 'running') {
           player.state = 'jumping'
-          player.velocity.y -= 10
+          player.velocity.y -= playerJumpVelocity // jump velocity
         }
 
         break
