@@ -1,8 +1,7 @@
 class Platform {
 
-    constructor({ x, y, width, height, image, block }) {
+    constructor({ x, y, width, height, image, block, text }) {
 
-      // position
       this.position = {
         x,
         y
@@ -18,18 +17,19 @@ class Platform {
 
       this.block = block
 
+      this.text = text
+
     }
 
     draw() {
 
-//      c.fillStyle = 'blue'
-//      c.fillRect(this.position.x, this.position.y, this.width, this.height)
+      c.drawImage(this.image, this.position.x, this.position.y)
 
-//      c.drawImage(this.image, this.position.x, this.position.y)
-
-      const pattern = c.createPattern(this.image, "repeat");
-      c.fillStyle = pattern;
-      c.fillRect(this.position.x, this.position.y, this.width, this.height)
+      if (this.text) {
+        c.font = '20px Arial'
+        c.fillStyle = 'black'
+        c.fillText(this.text, this.position.x, this.position.y)
+      }
 
     }
 
