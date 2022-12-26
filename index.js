@@ -99,7 +99,13 @@ let assets = {
 
   birchTree: {
     src: 'img/sprites/trees/birch.png'
-  }
+  },
+
+  // FLAG POLE
+
+  flagPole: {
+    src: 'img/sprites/flag-pole/flagPole.png'
+  },
 
 }
 let totalAssets = 0
@@ -138,7 +144,7 @@ setTimeout(function() {
 // CONSTANTS
 
 // Gravity
-const gravity = 0.5
+let gravity = 0.5
 
 // GAME PARTS...
 
@@ -149,10 +155,17 @@ let playerJumpVelocity = 12
 
 // SCROLL OFFSET
 
-let scrollOffset = 0 // WIN: "let" means it changes over time
-const scrollOffsetFinish = 5000
+let scrollOffset = 0
+
+// WIN
+//const scrollOffsetFinish = 5500
+const scrollOffsetFinish = 500 // test
+
+let game = null
 
 let platforms = null
+
+let genericObjects = null
 
 let backgrounds = null
 
@@ -163,6 +176,8 @@ let badbushes = null
 let particles = null
 
 let snowflowers = null
+
+let flagPole = null
 
 // HELPERS
 
@@ -208,6 +223,10 @@ const keys = {
 
 var init = function() {
 
+  game = {
+    disableUserInput: false
+  }
+
   var platformWidth = assets.platform.width
   var platformDefaultY = canvas.height - assets.platform.height
 
@@ -234,13 +253,13 @@ var init = function() {
 
     // tri block + single block stack
     new Platform({
-      x: 360 + 128,
+      x: 1900 + 128,
       y: 350,
       image: assets.triBlock,
       block: true
     }),
     new Platform({
-      x: 360 + 128 + assets.singleBlock.width,
+      x: 1900 + 128 + assets.singleBlock.width,
       y: 225,
       image: assets.singleBlock,
       block: true
@@ -302,6 +321,7 @@ var init = function() {
     'gap',
     'gap',
     'lg',
+    'lg',
     'lg'
   ]
 
@@ -360,6 +380,25 @@ var init = function() {
 //    image: assets.triBlock,
 //    block: true
 //  }));
+
+  // FLAG POLE
+
+  flagPole = new GenericObject({
+    x: scrollOffsetFinish,
+    y: canvas.height - assets.platform.height - assets.flagPole.height,
+    image: assets.flagPole,
+    scrollSpeed: 1
+  })
+
+  // GENERIC OBJECTS
+
+  genericObjects = [
+    new GenericObject({
+      x: 420,
+      y: canvas.height - assets.platform.height - assets.oakTree.height,
+      image: assets.oakTree
+    })
+  ]
 
   // BACKGROUNDS
 
@@ -504,11 +543,62 @@ function animate() {
     background.velocity.x = 0
   })
 
+  // Draw Generic Objects
+  genericObjects.forEach(genericObject => {
+    genericObject.update()
+    genericObject.velocity.x = 0
+  })
+
   // Draw Platforms
   platforms.forEach(platform => {
     platform.update()
     platform.velocity.x = 0
   })
+
+  // Draw Flagpole
+
+  if (flagPole) {
+
+    flagPole.update()
+    flagPole.velocity.x = 0
+
+    // WIN = player + flag pole
+    if (!game.disableUserInput && objectsTouch({
+      obj1: player,
+      obj2: flagPole
+    })) {
+
+      console.log('touch!');
+
+      game.disableUserInput = true
+
+      player.velocity.x = 0
+      player.velocity.y = 0
+
+      gravity = 0
+
+      player.sprite = player.sprites.stand.right
+
+      // TODO gsap animate fall
+      gsap.to(player.position, {
+        y: canvas.height - assets.platform.height - player.height,
+        duration: 1,
+        onComplete() {
+          player.sprite = player.sprites.run.right
+        }
+      })
+
+      // TODO gsap animate run
+      gsap.to(player.position, {
+        delay: 1,
+        x: canvas.width,
+        duration: 2,
+        ease: 'power1.in'
+      })
+
+    }
+
+  }
 
   // Draw SnowFlowers
   snowflowers.forEach((snowflower, i) => {
@@ -615,6 +705,8 @@ function animate() {
 
   let hitSide = false
 
+  if (game.disableUserInput) return
+
   if (keys.right.pressed && player.position.x < 400 /* right edge */) {
     player.velocity.x = player.speed
   }
@@ -659,6 +751,12 @@ function animate() {
 
         backgrounds.forEach(background => {
           background.velocity.x = -player.speed * background.scrollSpeed // parallax scroll
+        })
+
+        flagPole.velocity.x = -player.speed
+
+        genericObjects.forEach(genericObject => {
+          genericObject.velocity.x = -player.speed * genericObject.scrollSpeed
         })
 
         snowflowers.forEach(snowflower => {
@@ -707,6 +805,12 @@ function animate() {
 
         backgrounds.forEach(background => {
           background.velocity.x = player.speed * background.scrollSpeed // parallax scroll
+        })
+
+        flagPole.velocity.x = player.speed
+
+        genericObjects.forEach(genericObject => {
+          genericObject.velocity.x = player.speed * .66
         })
 
         snowflowers.forEach(snowflower => {
@@ -999,7 +1103,7 @@ function isCircleOnTopOfPlatform({object, platform}) {
 
 // PART II: START GAME
 
-function game() {
+function start() {
   // INIT
 
   init()
@@ -1013,6 +1117,9 @@ function game() {
   // KEY DOWN
 
   addEventListener('keydown', ({ keyCode } ) => {
+
+    if (game.disableUserInput) return
+
     switch (keyCode) {
 
       // LEFT (A)
@@ -1081,6 +1188,9 @@ function game() {
   // KEY UP
 
   addEventListener('keyup', ({ keyCode }) => {
+
+    if (game.disableUserInput) return
+
     switch (keyCode) {
 
       // LEFT (A)
@@ -1140,7 +1250,7 @@ for (var name in assets) {
     assets[name] = this
     assetsToLoad--
     if (!assetsToLoad) {
-      game()
+      start()
     }
 
   }
