@@ -25,11 +25,11 @@ class Platform {
 
       c.drawImage(this.image, this.position.x, this.position.y)
 
-      if (this.text) {
-        c.font = '20px Arial'
-        c.fillStyle = 'black'
-        c.fillText(this.text, this.position.x, this.position.y)
-      }
+//      if (this.text) {
+//        c.font = '20px Arial'
+//        c.fillStyle = 'black'
+//        c.fillText(this.text, this.position.x, this.position.y)
+//      }
 
     }
 
