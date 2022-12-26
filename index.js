@@ -158,8 +158,8 @@ let playerJumpVelocity = 12
 let scrollOffset = 0
 
 // WIN
-//const scrollOffsetFinish = 5500
-const scrollOffsetFinish = 500 // test
+const scrollOffsetFinish = 5500
+//const scrollOffsetFinish = 420 // test
 
 let game = null
 
@@ -549,6 +549,23 @@ function animate() {
     genericObject.velocity.x = 0
   })
 
+  // Draw Particles
+  particles.forEach((particle, i) => {
+
+    particle.update()
+
+    // Remove particles that go outside the canvas.
+    if (particle.snowball && (
+      particle.position.x - particle.radius >= canvas.width ||
+      particle.position.x + particle.radius <= 0
+    )) {
+      setTimeout(() => {
+        particles.splice(i, 1)
+      }, 0)
+    }
+
+  })
+
   // Draw Platforms
   platforms.forEach(platform => {
     platform.update()
@@ -579,7 +596,7 @@ function animate() {
 
       player.sprite = player.sprites.stand.right
 
-      // TODO gsap animate fall
+      // fall...
       gsap.to(player.position, {
         y: canvas.height - assets.platform.height - player.height,
         duration: 1,
@@ -588,13 +605,45 @@ function animate() {
         }
       })
 
-      // TODO gsap animate run
+      // run...
       gsap.to(player.position, {
         delay: 1,
         x: canvas.width,
         duration: 2,
         ease: 'power1.in'
       })
+
+      // fireworks
+      // Math.PI * 2 = 360 deg
+      const particleCount = 300
+      const radians = Math.PI * 2 /  particleCount
+      const fireworkJuice = 8
+      let increment = 1
+      const fireworksInterval = setInterval(() => {
+
+        for (let i = 0; i < particleCount; i++) {
+          particles.push(new Particle({
+            position: {
+              x: canvas.width / 4 * increment,
+              y: canvas.height / 2
+            },
+            velocity: {
+              x: Math.cos(radians * i) * fireworkJuice * Math.random(),
+              y: Math.sin(radians * i) * fireworkJuice * Math.random()
+            },
+            radius: 3 * Math.random(),
+            color: `hsl(${Math.random() * 100}, 50%, 50%)`,
+            fades: true
+          }))
+        }
+
+        if (increment === 3) {
+          clearInterval(fireworksInterval)
+        }
+
+        increment++
+
+      }, 1000)
 
     }
 
@@ -671,23 +720,6 @@ function animate() {
         init()
       }
 
-    }
-
-  })
-
-  // Draw Particles
-  particles.forEach((particle, i) => {
-
-    particle.update()
-
-    // Remove particles that go outside the canvas.
-    if (particle.snowball && (
-      particle.position.x - particle.radius >= canvas.width ||
-      particle.position.x + particle.radius <= 0
-    )) {
-      setTimeout(() => {
-        particles.splice(i, 1)
-      }, 0)
     }
 
   })
