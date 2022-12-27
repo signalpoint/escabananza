@@ -25,6 +25,7 @@ class Platform {
 
       c.drawImage(this.image, this.position.x, this.position.y)
 
+      // debug output
 //      if (this.text) {
 //        c.font = '20px Arial'
 //        c.fillStyle = 'black'
