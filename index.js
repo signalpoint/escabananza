@@ -109,6 +109,10 @@ let assets = {
 
   // SOUNDS
 
+  level1: {
+    src: 'audio/level1.mp3'
+  },
+
   jump: {
     src: 'audio/jump.mp3'
   },
@@ -167,8 +171,7 @@ const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnim
 let gameAnimationFrame;
 
 setTimeout(function() {
-  cancelAnimationFrame(gameAnimationFrame);
-  console.log('STOPPED GAME!');
+  stopGame();
 }, 30000);
 
 // CONSTANTS
@@ -236,6 +239,23 @@ function playSound(name) {
   assets[name].play()
 }
 
+function playMusic() {
+  assets.level1.loop = true
+  playSound('level1')
+  game.musicPlaying = true
+}
+
+function stopMusic() {
+  assets.level1.pause()
+  game.musicPlaying = false
+}
+
+function stopGame() {
+  console.log('STOPPED GAME!');
+  if (game.musicPlaying) stopMusic()
+  cancelAnimationFrame(gameAnimationFrame);
+}
+
 // KEYS
 
 let lastKey
@@ -262,7 +282,8 @@ const keys = {
 var init = function() {
 
   game = {
-    disableUserInput: false
+    disableUserInput: false,
+    musicEnabled: true
   }
 
   var platformWidth = assets.platform.width
@@ -643,6 +664,7 @@ function animate() {
       obj2: flagPole
     })) {
 
+      stopMusic()
       assets.completeLevel.play()
 
       game.disableUserInput = true
@@ -680,6 +702,8 @@ function animate() {
       const fireworksInterval = setInterval(() => {
 
         playSound('die')
+//        playSound('whistle')
+
         for (let i = 0; i < particleCount; i++) {
           particles.push(new Particle({
             position: {
@@ -1209,6 +1233,11 @@ function start() {
 //    console.log(keyCode);
 
     if (game.disableUserInput) return
+
+    // Play music
+//    if (game.musicEnabled && !game.musicPlaying) {
+//      playMusic()
+//    }
 
     switch (keyCode) {
 
