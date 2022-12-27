@@ -143,6 +143,7 @@ class BadBush extends Sprite {
   }
 
   explode() {
+    playSound('squishBadBush')
     for (let j = 0; j < 50; j++) {
       particles.push(new Particle({
         position: {
