@@ -7,23 +7,23 @@ let assets = {
   // BACKGROUNDS
 
   sky: {
-    src: 'img/sky.png'
+    src: 'img/levels/1/sky.png'
   },
 
   hills: {
-    src: 'img/hills.png'
+    src: 'img/levels/1/mountains.png'
   },
 
   // PLATFORMS
 
   platform: {
-    src: 'img/platform.png'
+    src: 'img/levels/1/platform.png'
   },
   platformTall: {
-    src: 'img/platform-tall.png'
+    src: 'img/levels/1/tallPlatform.png'
   },
   platformXTall: {
-    src: 'img/xtall-platform.png'
+    src: 'img/levels/1/extraTallPlatform.png'
   },
 
   // BLOCKS
@@ -104,7 +104,7 @@ let assets = {
   // FLAG POLE
 
   flagPole: {
-    src: 'img/sprites/flag-pole/flagPole.png'
+    src: 'img/levels/1/flagpole.png'
   },
 
   // SOUNDS
@@ -172,7 +172,7 @@ let gameAnimationFrame;
 
 setTimeout(function() {
   stopGame();
-}, 30000);
+}, 60000);
 
 // CONSTANTS
 
@@ -191,7 +191,7 @@ let playerJumpVelocity = 12
 let scrollOffset = 0
 
 // WIN
-const scrollOffsetFinish = 5400
+const scrollOffsetFinish = 7500
 //const scrollOffsetFinish = 420 // test
 
 let game = null
@@ -327,7 +327,7 @@ var init = function() {
     // tall platform
     new Platform({
       x: 1230 + assets.platform.width - assets.platformTall.width,
-      y: canvas.height - assets.platform.height - assets.platformTall.width,
+      y: canvas.height - assets.platform.height - assets.platformTall.height * .75,
       image: assets.platformTall
     }),
 
@@ -371,9 +371,15 @@ var init = function() {
     'xtall',
     'xtall',
     'gap',
-    'xtall',
-    'xtall',
+    'lg',
     'gap',
+    'tall',
+    'tall',
+    'gap',
+    'gap',
+    'lg',
+    'tall',
+    'tall',
     'gap',
     'xtall',
     'xtall',
@@ -514,18 +520,7 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: 600,
-        y: platformDefaultY - 100
-      },
-      velocity: {
-        x: -1,
-        y: 0
-      }
-    }),
-
-    new BadBush({
-      position: {
-        x: 1270,
+        x: 650,
         y: platformDefaultY - 100
       },
       velocity: {
@@ -547,8 +542,8 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: 2500,
-        y: platformDefaultY - 100
+        x: 4000,
+        y: platformDefaultY - assets.platformTall.height
       },
       velocity: {
         x: -1,
@@ -558,8 +553,8 @@ var init = function() {
 
     new BadBush({
       position: {
-        x: 3570,
-        y: canvas.height - assets.platformTall.height - assets.badBushWalkLeft.height
+        x: 5500,
+        y: platformDefaultY - assets.platformTall.height
       },
       velocity: {
         x: -1,
@@ -578,7 +573,7 @@ var init = function() {
 
     new SnowFlower({
       position: {
-        x: 192,
+        x: 420,
         y: 96
       },
       velocity: {
@@ -1003,7 +998,9 @@ function animate() {
 
     // PLATFORM + BAD BUSHES
 
-    badbushes.forEach(badbush => {
+    for (let i = 0; i < badbushes.length; i++) {
+
+      let badbush = badbushes[i]
 
       // bush on top of platform
       if (isOnTopOfPlatform({
@@ -1013,22 +1010,22 @@ function animate() {
 
         // the bush is on the platform...
 
-        // bush at left edge of platform, walk right instead
+        // bush at left edge of platform, walk right instead (if they aren't already walking right)
         if (isAtLeftOfPlatform({
           object: badbush,
           platform
-        })) {
+        }) && badbush.sprite !== badbush.sprites.walk.right) {
 //            console.log('left edge');
           badbush.velocity.x *= -1
           badbush.velocity.y = 0
           badbush.sprite = badbush.sprites.walk.right
         }
 
-        // bush at right edge of platform, walk left instead
+        // bush at right edge of platform, walk left instead (if they aren't already walking left)
         else if (isAtRightOfPlatform({
           object: badbush,
           platform
-        })) {
+        }) && badbush.sprite !== badbush.sprites.walk.left) {
 //            console.log('right edge');
           badbush.velocity.x *= -1
           badbush.velocity.y = 0
@@ -1040,7 +1037,7 @@ function animate() {
 
       }
 
-    })
+    }
 
     // PLATFORM + PARTICLES
 
@@ -1235,9 +1232,9 @@ function start() {
     if (game.disableUserInput) return
 
     // Play music
-//    if (game.musicEnabled && !game.musicPlaying) {
+    if (game.musicEnabled && !game.musicPlaying) {
 //      playMusic()
-//    }
+    }
 
     switch (keyCode) {
 
