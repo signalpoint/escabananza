@@ -107,6 +107,36 @@ let assets = {
     src: 'img/sprites/flag-pole/flagPole.png'
   },
 
+  // SOUNDS
+
+  jump: {
+    src: 'audio/jump.mp3'
+  },
+
+  die: {
+    src: 'audio/die.mp3'
+  },
+
+  pickUpSnowFlower: {
+    src: 'audio/pick-up-snow-flower.mp3'
+  },
+
+  losePowerUp: {
+    src: 'audio/lose-power-up.mp3'
+  },
+
+  tossSnowFlower: {
+    src: 'audio/toss-snow-flower.mp3'
+  },
+
+  squishBadBush: {
+    src: 'audio/squish-bad-bush.mp3'
+  },
+
+  completeLevel: {
+    src: 'audio/complete-level.mp3'
+  }
+
 }
 let totalAssets = 0
 for (var name in assets) {
@@ -158,7 +188,7 @@ let playerJumpVelocity = 12
 let scrollOffset = 0
 
 // WIN
-const scrollOffsetFinish = 5500
+const scrollOffsetFinish = 5400
 //const scrollOffsetFinish = 420 // test
 
 let game = null
@@ -196,6 +226,14 @@ function randomBadBush() {
       y: 0
     }
   })
+}
+
+function playSound(name) {
+  if (!assets[name].paused) {
+    assets[name].pause()
+    assets[name].currentTime = 0;
+  }
+  assets[name].play()
 }
 
 // KEYS
@@ -252,18 +290,18 @@ var init = function() {
   platforms = [
 
     // tri block + single block stack
-    new Platform({
-      x: 1900 + 128,
-      y: 350,
-      image: assets.triBlock,
-      block: true
-    }),
-    new Platform({
-      x: 1900 + 128 + assets.singleBlock.width,
-      y: 225,
-      image: assets.singleBlock,
-      block: true
-    }),
+//    new Platform({
+//      x: 1900 + 128,
+//      y: 350,
+//      image: assets.triBlock,
+//      block: true
+//    }),
+//    new Platform({
+//      x: 1900 + 128 + assets.singleBlock.width,
+//      y: 225,
+//      image: assets.singleBlock,
+//      block: true
+//    }),
 
     // tall platform
     new Platform({
@@ -272,19 +310,19 @@ var init = function() {
       image: assets.platformTall
     }),
 
-    // 2 single block (blocks their path, forces them to jump over)
-    new Platform({
-      x: 1230 + (assets.platform.width / 2),
-      y: platformDefaultY - assets.singleBlock.height,
-      image: assets.singleBlock,
-      block: true
-    }),
-    new Platform({
-      x: 1230 + (assets.platform.width / 2),
-      y: platformDefaultY - assets.singleBlock.height * 2,
-      image: assets.singleBlock,
-      block: true
-    })
+    // 2 single blocks, stacked (blocks their path, forces them to jump over)
+//    new Platform({
+//      x: 1230 + (assets.platform.width / 2),
+//      y: platformDefaultY - assets.singleBlock.height,
+//      image: assets.singleBlock,
+//      block: true
+//    }),
+//    new Platform({
+//      x: 1230 + (assets.platform.width / 2),
+//      y: platformDefaultY - assets.singleBlock.height * 2,
+//      image: assets.singleBlock,
+//      block: true
+//    })
 
   ]
 
@@ -392,12 +430,31 @@ var init = function() {
 
   // GENERIC OBJECTS
 
+  const oakTreeDefaultY = canvas.height - assets.platform.height - assets.oakTree.height
+
   genericObjects = [
+
+    // oak tree
     new GenericObject({
       x: 420,
-      y: canvas.height - assets.platform.height - assets.oakTree.height,
+      y: oakTreeDefaultY,
+      image: assets.oakTree
+    }),
+
+    // oak tree
+    new GenericObject({
+      x: 1950,
+      y: oakTreeDefaultY,
+      image: assets.oakTree
+    }),
+
+    // oak tree
+    new GenericObject({
+      x: 2400,
+      y: oakTreeDefaultY,
       image: assets.oakTree
     })
+
   ]
 
   // BACKGROUNDS
@@ -580,12 +637,13 @@ function animate() {
     flagPole.velocity.x = 0
 
     // WIN = player + flag pole
+    // complete level
     if (!game.disableUserInput && objectsTouch({
       obj1: player,
       obj2: flagPole
     })) {
 
-      console.log('touch!');
+      assets.completeLevel.play()
 
       game.disableUserInput = true
 
@@ -596,7 +654,7 @@ function animate() {
 
       player.sprite = player.sprites.stand.right
 
-      // fall...
+      // flag pole slide...
       gsap.to(player.position, {
         y: canvas.height - assets.platform.height - player.height,
         duration: 1,
@@ -605,7 +663,7 @@ function animate() {
         }
       })
 
-      // run...
+      // run off the screen...
       gsap.to(player.position, {
         delay: 1,
         x: canvas.width,
@@ -621,6 +679,7 @@ function animate() {
       let increment = 1
       const fireworksInterval = setInterval(() => {
 
+        playSound('die')
         for (let i = 0; i < particleCount; i++) {
           particles.push(new Particle({
             position: {
@@ -717,7 +776,9 @@ function animate() {
 
       }
       else if (!player.invincible) {
-        init()
+
+        player.die()
+
       }
 
     }
@@ -788,7 +849,7 @@ function animate() {
         flagPole.velocity.x = -player.speed
 
         genericObjects.forEach(genericObject => {
-          genericObject.velocity.x = -player.speed * genericObject.scrollSpeed
+          genericObject.velocity.x = -player.speed * genericObject.scrollSpeed // parallax scroll
         })
 
         snowflowers.forEach(snowflower => {
@@ -842,7 +903,7 @@ function animate() {
         flagPole.velocity.x = player.speed
 
         genericObjects.forEach(genericObject => {
-          genericObject.velocity.x = player.speed * .66
+          genericObject.velocity.x = player.speed * genericObject.scrollSpeed // parallax scroll
         })
 
         snowflowers.forEach(snowflower => {
@@ -1053,17 +1114,12 @@ function animate() {
 
   }
 
-  // WIN
-
-
-  if (scrollOffset > scrollOffsetFinish) {
-    console.log('you win!')
-  }
-
   // LOSE
 
   // Fall below canvas.
-  if (player.position.y > canvas.height) { init() }
+  if (player.position.y > canvas.height) {
+    player.die()
+  }
 
 } // animate
 
@@ -1150,12 +1206,15 @@ function start() {
 
   addEventListener('keydown', ({ keyCode } ) => {
 
+//    console.log(keyCode);
+
     if (game.disableUserInput) return
 
     switch (keyCode) {
 
-      // LEFT (A)
-      case 65:
+      // LEFT
+      case 65: // (A)
+      case 37: // (left arrow)
 
         keys.left.pressed = true
 
@@ -1167,8 +1226,9 @@ function start() {
 
         break
 
-      // RIGHT (D)
-      case 68:
+      // RIGHT
+      case 68: // (D)
+      case 39: // (right arrow)
 
         keys.right.pressed = true
 
@@ -1180,14 +1240,19 @@ function start() {
 
         break
 
-      // JUMP (W)
-      case 87:
+      // JUMP
+      case 87: // (W)
+      case 38: // (up arrow)
 
         keys.space.pressed = true
 
         if (player.state === 'standing' || player.state === 'running') {
+
+          playSound('jump')
+
           player.state = 'jumping'
           player.velocity.y -= playerJumpVelocity // jump velocity
+
         }
 
         break
@@ -1197,7 +1262,10 @@ function start() {
 
         if (!player.powerUps.snowFlower) return
 
-        // throw a snow ball
+        // play sound
+        playSound('tossSnowFlower')
+
+        // throw/toss a snow ball
         particles.push(new Particle({
           position: {
             x: player.position.x + player.width / 2,
@@ -1225,8 +1293,9 @@ function start() {
 
     switch (keyCode) {
 
-      // LEFT (A)
-      case 65:
+      // LEFT
+      case 65: // (A)
+      case 37: // (left arrow)
 
         keys.left.pressed = false
 
@@ -1236,8 +1305,9 @@ function start() {
 
         break
 
-      // RIGHT (D)
-      case 68:
+      // RIGHT
+      case 68: // (D)
+      case 39: // (right arrow)
 
         keys.right.pressed = false
 
@@ -1247,8 +1317,9 @@ function start() {
 
         break
 
-      // JUMP (W)
-      case 87:
+      // JUMP
+      case 87: // (W)
+      case 38: // (up arrow)
         keys.space.pressed = false
         break
 
@@ -1270,20 +1341,61 @@ for (var name in assets) {
 
   if (!assets.hasOwnProperty(name)) { continue }
 
-  var img = new Image()
-  img.src = assets[name].src
-  img.setAttribute('data-name', name)
+  var src = assets[name].src
+  var filename = src.split('/').pop()
 
-  img.onload = function() {
+  // Get file extension. @credit https://stackoverflow.com/a/1203361/763010
+  var type = filename.substring(filename.lastIndexOf('.')+1, filename.length) || filename;
 
-    var name = this.getAttribute('data-name')
-    console.log('loaded', name, this.src)
+  switch (type) {
 
-    assets[name] = this
-    assetsToLoad--
-    if (!assetsToLoad) {
-      start()
-    }
+    case 'png':
+
+      var img = new Image()
+      img.src = src
+      img.setAttribute('data-name', name)
+
+      img.onload = function() {
+
+        var name = this.getAttribute('data-name')
+        console.log(`loaded ${name}`, this.src)
+
+        assets[name] = this
+        assetsToLoad--
+        if (!assetsToLoad) start()
+
+      }
+
+      break
+
+    case 'mp3':
+    case 'wav':
+
+      var audio = new Audio(src)
+      audio.setAttribute('data-name', name)
+
+      audio.addEventListener("canplay", (event) => {
+
+        // The canplay event fires each time we play a sound, so we skip it once all assets are loaded.
+        if (!assetsToLoad) return
+
+        var self = event.target
+        var name = self.getAttribute('data-name')
+        console.log('loaded', name, self.src)
+
+        assets[name] = self
+        assetsToLoad--
+        if (!assetsToLoad) start()
+
+      });
+
+      break
+
+    default:
+
+      console.error(`${src} can't be loaded`);
+
+      break
 
   }
 
