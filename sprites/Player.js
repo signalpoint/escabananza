@@ -115,6 +115,7 @@ class Player extends Sprite {
         case 'snow':
           this.powerUps.snowFlower = true
           this.setSpriteSet('snow')
+          assets.pickUpSnowFlower.play()
           break;
       }
     }
@@ -123,6 +124,7 @@ class Player extends Sprite {
         case 'snow': this.powerUps.snowFlower = false; break;
       }
       this.setSpriteSet()
+      assets.losePowerUp.play()
     }
 
     this.setSpriteSet = function(set) {
@@ -241,6 +243,11 @@ class Player extends Sprite {
 
     c.restore()
 
+  }
+
+  die() {
+    playSound('die')
+    init()
   }
 
 }
