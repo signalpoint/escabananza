@@ -186,14 +186,6 @@ let gravity = 0.5
 let player = null
 let playerJumpVelocity = 12
 
-// SCROLL OFFSET
-
-let scrollOffset = 0
-
-// WIN
-const scrollOffsetFinish = 7500
-//const scrollOffsetFinish = 420 // test
-
 let game = null
 
 let platforms = null
@@ -276,6 +268,14 @@ const keys = {
     pressed: false
   }
 }
+
+// SCROLL OFFSET
+
+let scrollOffset = 0
+
+// WIN
+const scrollOffsetFinish = 7650
+//const scrollOffsetFinish = 420 // test
 
 // INIT
 
@@ -370,6 +370,7 @@ var init = function() {
     'gap',
     'xtall',
     'xtall',
+    'gap',
     'gap',
     'lg',
     'gap',
