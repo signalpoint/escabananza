@@ -1,12 +1,17 @@
 import { images } from './images.js'
 import { audio } from './audio.js'
 import { playSound, playMusic, stopMusic, loadImages, loadAudio } from './media.js'
+import { loadLevel } from './levels.js'
 
 import {
   canvas,
-  c,
-  init
+  c
 } from './canvas.js'
+
+import {
+  init,
+  reset
+} from './game.js'
 
 import {
   getGame,
@@ -181,6 +186,7 @@ function animate() {
       player.velocity.x = 0
       player.velocity.y = 0
 
+      let oldGravity = getGravity()
       setGravity(0)
 
       player.sprite = player.sprites.stand.right
@@ -203,15 +209,13 @@ function animate() {
       })
 
       // fireworks
-      // Math.PI * 2 = 360 deg
       const particleCount = 300
-      const radians = Math.PI * 2 /  particleCount
+      const radians = Math.PI * 2 /  particleCount // Math.PI * 2 = 360 deg
       const fireworkJuice = 8
       let increment = 1
       const fireworksInterval = setInterval(() => {
 
         playSound('die')
-//        playSound('whistle')
 
         for (let i = 0; i < particleCount; i++) {
           particles.push(new Particle({
@@ -231,6 +235,22 @@ function animate() {
 
         if (increment === 3) {
           clearInterval(fireworksInterval)
+          setTimeout(() => {
+            console.log('move to next level')
+            loadLevel(game.level + 1).then(function() {
+//              lastKey = null
+              keys.left.pressed = false
+              keys.right.pressed = false
+              keys.up.pressed = false
+              keys.space.pressed = false
+              game.level++
+              game.disableUserInput = false
+              setGravity(oldGravity)
+              reset()
+              init()
+              // TODO unload last level's assets!
+            })
+          }, 1);
         }
 
         increment++
@@ -816,20 +836,6 @@ function start() {
 } // GAME
 
 // PART I: LOAD ASSETS
-
-function loadLevel(number) {
-  return loadImages(images.levels[number]).then(function() {
-
-    console.log('loaded images', number);
-
-    loadAudio(audio.levels[number]).then(function() {
-
-      console.log('loaded audio', number);
-
-    });
-
-  });
-}
 
 console.log('loading images...');
 
