@@ -1,8 +1,10 @@
-let game = {}
+// TODO move game stuff to game.js?
+
+let game = null
 
 let scrollOffset = 0 // SCROLL OFFSET
-const scrollOffsetFinish = 7650 // WIN
-//const scrollOffsetFinish = 420 // WIN: test
+const scrollOffsetFinish = 7650 // WIN: level 1
+//const scrollOffsetFinish = 720 // WIN: test
 
 let gravity = 0.5
 let player = null
