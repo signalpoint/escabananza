@@ -1,7 +1,7 @@
 import { Sprite } from '../modules/Sprite.js'
 import { images } from '../images.js'
 import { canvas } from '../canvas.js'
-import { gravity } from '../environment.js'
+import { getGravity } from '../environment.js'
 
 export class SnowFlower extends Sprite {
 
@@ -62,7 +62,7 @@ export class SnowFlower extends Sprite {
 
     // if the bottom of the flower is above the bottom of the canvas, apply gravity
     if (this.position.y + this.height + this.velocity.y <= canvas.height) { // above bottom
-      this.velocity.y += gravity
+      this.velocity.y += getGravity()
     }
 
   }
