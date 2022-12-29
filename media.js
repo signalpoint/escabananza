@@ -140,6 +140,11 @@ function loadAudio(assets) {
 
   return new Promise(function(ok, err) {
 
+    if (!assets)  {
+      ok()
+      return
+    }
+
     for (var name in assets) {
 
       if (!assets.hasOwnProperty(name)) { continue }
