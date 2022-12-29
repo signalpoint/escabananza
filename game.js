@@ -102,16 +102,9 @@ var init = function() {
 
   setPlayer(player)
 
-  // PLATFORMS
-
-  // Place generic in-game platforms first...
-
-//  platforms.push()
-//  loadLevelPlatforms(level)
+  // PLATFORMS | map
 
   // Place level's map onto the platform collection...
-
-  console.log('loading level map')
 
   let platformDistance = 0
 
