@@ -1,4 +1,7 @@
-class Tree extends Sprite {
+import { Sprite } from '../modules/Sprite.js'
+import { images } from '../images.js'
+
+export class Tree extends Sprite {
 
   constructor({ position, scrollSpeed }) {
 
@@ -14,7 +17,7 @@ class Tree extends Sprite {
 
     this.sprites = {
       planted: {
-        img: assets.oakTree,
+        img: images.trees.oakTree,
         animation: [
           0
         ]

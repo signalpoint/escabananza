@@ -1,4 +1,11 @@
-class BadBush extends Sprite {
+import { Sprite } from '../modules/Sprite.js'
+import { Particle } from '../modules/Particle.js'
+import { images } from '../images.js'
+import { playSound } from '../media.js'
+import { canvas } from '../canvas.js'
+import { gravity, addParticle } from '../environment.js'
+
+export class BadBush extends Sprite {
 
   constructor({ position, velocity }) {
 
@@ -22,8 +29,8 @@ class BadBush extends Sprite {
 //    this.sprites = {
 //      walk: {
 //        frames: 24,
-//        left: assets.badBushWalkLeft,
-//        right: assets.badBushWalkRight
+//        left: images.badBush.badBushWalkLeft,
+//        right: images.badBush.badBushWalkRight
 //      }
 //    }
 //    this.sprite = this.sprites.walk.left
@@ -31,7 +38,7 @@ class BadBush extends Sprite {
     this.sprites = {
       walk: {
         left: {
-          img: assets.badBushWalkLeft,
+          img: images.badBush.walkLeft,
           animation: [
 
             // slow
@@ -64,7 +71,7 @@ class BadBush extends Sprite {
           ]
         },
         right: {
-          img: assets.badBushWalkRight,
+          img: images.badBush.walkRight,
           animation: [
 
             // slow
@@ -145,7 +152,7 @@ class BadBush extends Sprite {
   explode() {
     playSound('squishBadBush')
     for (let j = 0; j < 50; j++) {
-      particles.push(new Particle({
+      addParticle(new Particle({
         position: {
           x: this.position.x + this.width / 2,
           y: this.position.y + this.height / 2

@@ -1,163 +1,48 @@
+import { images } from './images.js'
+import { audio } from './audio.js'
+import { playSound, playMusic, stopMusic, loadImages, loadAudio } from './media.js'
 
+import { canvas, c } from './canvas.js'
+import {
+  getGame,
+  setGame,
+  gravity,
+  getPlayer,
+  setPlayer,
+  getPlatforms,
+  getGenericObjects,
+  getBackgrounds,
+  getForegrounds,
+  getBadBushes,
+  getParticles,
+  getSnowFlowers,
+  getFlagPole,
+  setFlagPole
+} from './environment.js'
 
-// ASSETS | Declare and Count
+import {
+  isOnTopOfPlatform,
+  isAtBottomOfPlatform,
+  isAtLeftOfPlatform,
+  isAtRightOfPlatform,
+  hitSideOfPlatform,
+  objectsTouch,
+  collisionTop,
+  isCircleOnTopOfPlatform
+} from './utilities/collision.js'
 
-let assets = {
+import { Layer } from './modules/Layer.js'
+import { Background } from './modules/Background.js'
+import { Foreground } from './modules/Foreground.js'
+import { GenericObject } from './modules/GenericObject.js'
+import { Platform } from './modules/Platform.js'
+import { Particle } from './modules/Particle.js'
+import { Sprite } from './modules/Sprite.js'
 
-  // BACKGROUNDS
-
-  sky: {
-    src: 'img/levels/1/sky.png'
-  },
-
-  hills: {
-    src: 'img/levels/1/mountains.png'
-  },
-
-  // PLATFORMS
-
-  platform: {
-    src: 'img/levels/1/platform.png'
-  },
-  platformTall: {
-    src: 'img/levels/1/tallPlatform.png'
-  },
-  platformXTall: {
-    src: 'img/levels/1/extraTallPlatform.png'
-  },
-
-  // BLOCKS
-
-  singleBlock: {
-    src: 'img/single-block.png'
-  },
-
-  triBlock: {
-    src: 'img/tri-block.png'
-  },
-
-  // PLAYER
-
-  // default
-  standLeft: {
-    src: 'img/sprites/frankenstein/standLeft.png'
-  },
-  standRight: {
-    src: 'img/sprites/frankenstein/standRight.png'
-  },
-  runLeft: {
-    src: 'img/sprites/frankenstein/walkLeft.png'
-  },
-  runRight: {
-    src: 'img/sprites/frankenstein/walkRight.png'
-  },
-  jumpLeft: {
-    src: 'img/sprites/frankenstein/jumpLeft.png'
-  },
-  jumpRight: {
-    src: 'img/sprites/frankenstein/jumpRight.png'
-  },
-
-  // snow
-  standLeftSnow: {
-    src: 'img/sprites/frankenstein/snow/standLeft.png'
-  },
-  standRightSnow: {
-    src: 'img/sprites/frankenstein/snow/standRight.png'
-  },
-  runLeftSnow: {
-    src: 'img/sprites/frankenstein/snow/walkLeft.png'
-  },
-  runRightSnow: {
-    src: 'img/sprites/frankenstein/snow/walkRight.png'
-  },
-  jumpLeftSnow: {
-    src: 'img/sprites/frankenstein/snow/jumpLeft.png'
-  },
-  jumpRightSnow: {
-    src: 'img/sprites/frankenstein/snow/jumpRight.png'
-  },
-
-  // BAD BUSH
-
-  badBushWalkLeft: {
-    src: 'img/sprites/bad-bush/walkLeft.png'
-  },
-  badBushWalkRight: {
-    src: 'img/sprites/bad-bush/walkRight.png'
-  },
-
-  snowFlowerPlanted: {
-    src: 'img/sprites/snow-flower.png'
-  },
-
-  // TREES
-
-  oakTree: {
-    src: 'img/sprites/trees/oak.png'
-  },
-
-  birchTree: {
-    src: 'img/sprites/trees/birch.png'
-  },
-
-  // FLAG POLE
-
-  flagPole: {
-    src: 'img/levels/1/flagpole.png'
-  },
-
-  // SOUNDS
-
-  level1: {
-    src: 'audio/level1.mp3'
-  },
-
-  jump: {
-    src: 'audio/jump.mp3'
-  },
-
-  die: {
-    src: 'audio/die.mp3'
-  },
-
-  pickUpSnowFlower: {
-    src: 'audio/pick-up-snow-flower.mp3'
-  },
-
-  losePowerUp: {
-    src: 'audio/lose-power-up.mp3'
-  },
-
-  tossSnowFlower: {
-    src: 'audio/toss-snow-flower.mp3'
-  },
-
-  squishBadBush: {
-    src: 'audio/squish-bad-bush.mp3'
-  },
-
-  completeLevel: {
-    src: 'audio/complete-level.mp3'
-  }
-
-}
-let totalAssets = 0
-for (var name in assets) {
-  if (!assets.hasOwnProperty(name)) { continue }
-  totalAssets++
-}
-
-// CANVAS
-
-// Get canvas and declare 2d context.
-const canvas = document.querySelector('canvas')
-const c = canvas.getContext('2d')
-
-// Set canvas width and height.
-// 16:9 aspect ratio
-canvas.width = 1024
-canvas.height = 576
+import { Player } from './sprites/Player.js'
+import { BadBush } from './sprites/BadBush.js'
+import { SnowFlower } from './sprites/SnowFlower.js'
+import { Tree } from './sprites/Tree.js'
 
 // ANIMATION FRAME (window)
 
@@ -170,77 +55,31 @@ const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnim
 
 let gameAnimationFrame;
 
-setTimeout(function() {
-  stopGame();
-}, 60000);
+//setTimeout(function() {
+//  stopGame();
+//}, 60000);
 
 // CONSTANTS
 
 // Gravity
-let gravity = 0.5
+//let gravity = 0.5
 
 // GAME PARTS...
 
 // PLAYER
 
-let player = null
-let playerJumpVelocity = 12
-
-let game = null
-
-let platforms = null
-
-let genericObjects = null
-
-let backgrounds = null
-
-let foregrounds = null
-
-let badbushes = null
-
-let particles = null
-
-let snowflowers = null
-
-let flagPole = null
+let player = getPlayer()
+let game = getGame()
+let platforms = getPlatforms()
+let genericObjects = getGenericObjects()
+let backgrounds = getBackgrounds()
+let foregrounds = getForegrounds()
+let badbushes = getBadBushes()
+let particles = getParticles()
+let snowflowers = getSnowFlowers()
+let flagPole = getFlagPole()
 
 // HELPERS
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function randomBadBush() {
-  return new BadBush({
-    position: {
-      x: getRandomInt(canvas.width - 64),
-      y: getRandomInt(420)
-    },
-    velocity: {
-      x: getRandomInt(3) * -1,
-      y: 0
-    }
-  })
-}
-
-function playSound(name) {
-  if (!assets[name].paused) {
-    assets[name].pause()
-    assets[name].currentTime = 0;
-  }
-  assets[name].play()
-}
-
-function playMusic() {
-  assets.level1.loop = true
-  playSound('level1')
-  game.musicPlaying = true
-}
-
-function stopMusic() {
-  assets.level1.pause()
-  game.musicPlaying = false
-}
 
 function stopGame() {
   console.log('STOPPED GAME!');
@@ -283,11 +122,14 @@ var init = function() {
 
   game = {
     disableUserInput: false,
-    musicEnabled: true
+    musicEnabled: true,
+    level: 1
   }
 
-  var platformWidth = assets.platform.width
-  var platformDefaultY = canvas.height - assets.platform.height
+  setGame(game)
+
+  var platformWidth = images.levels[game.level].platform.width
+  var platformDefaultY = canvas.height - images.levels[game.level].platform.height
 
   // GAME PARTS...
 
@@ -296,7 +138,7 @@ var init = function() {
   player = new Player({
     position: {
       x: 100,
-      y: platformDefaultY - assets.standRight.height // start on the ground
+      y: platformDefaultY - images.player.standRight.height // start on the ground
     },
     velocity: {
       x: 0,
@@ -304,11 +146,13 @@ var init = function() {
     }
   })
 
+  setPlayer(player)
+
   // PLATFORMS
 
   // Place generic in-game platforms first...
 
-  platforms = [
+  platforms.push(
 
     // tri block + single block stack
 //    new Platform({
@@ -326,10 +170,10 @@ var init = function() {
 
     // tall platform
     new Platform({
-      x: 1230 + assets.platform.width - assets.platformTall.width,
-      y: canvas.height - assets.platform.height - assets.platformTall.height * .75,
-      image: assets.platformTall
-    }),
+      x: 1230 + images.levels[game.level].platform.width - images.levels[game.level].platformTall.width,
+      y: canvas.height - images.levels[game.level].platform.height - images.levels[game.level].platformTall.height * .75,
+      image: images.levels[game.level].platformTall
+    })
 
     // 2 single blocks, stacked (blocks their path, forces them to jump over)
 //    new Platform({
@@ -345,7 +189,7 @@ var init = function() {
 //      block: true
 //    })
 
-  ]
+  )
 
   // Build level platforms map...
 
@@ -401,9 +245,9 @@ var init = function() {
       case 'lg':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - assets.platform.height,
+          y: canvas.height - images.levels[game.level].platform.height,
           width: platformWidth,
-          image: assets.platform,
+          image: images.levels[game.level].platform,
 //          block: true, // causes hitSideOfPlatform() to trigger upon game start, i.e. can't move, x velocity always 0
           text: platformDistance
         }))
@@ -417,21 +261,21 @@ var init = function() {
       case 'tall':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - assets.platformTall.height,
-          image: assets.platformTall,
+          y: canvas.height - images.levels[game.level].platformTall.height,
+          image: images.levels[game.level].platformTall,
           text: platformDistance
         }))
-        platformDistance += assets.platformTall.width // hmmm?
+        platformDistance += images.levels[game.level].platformTall.width // hmmm?
         break;
 
       case 'xtall':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - assets.platformXTall.height,
-          image: assets.platformXTall,
+          y: canvas.height - images.levels[game.level].platformXTall.height,
+          image: images.levels[game.level].platformXTall,
           text: platformDistance
         }))
-        platformDistance += assets.platformXTall.width // hmmm?
+        platformDistance += images.levels[game.level].platformXTall.width // hmmm?
         break;
 
     }
@@ -451,49 +295,51 @@ var init = function() {
 
   flagPole = new GenericObject({
     x: scrollOffsetFinish,
-    y: canvas.height - assets.platform.height - assets.flagPole.height,
-    image: assets.flagPole,
+    y: canvas.height - images.levels[game.level].platform.height - images.generic.flagPole.height,
+    image: images.generic.flagPole,
     scrollSpeed: 1
   })
 
+  setFlagPole(flagPole)
+
   // GENERIC OBJECTS
 
-  const oakTreeDefaultY = canvas.height - assets.platform.height - assets.oakTree.height
+  const oakTreeDefaultY = canvas.height - images.levels[game.level].platform.height - images.trees.oakTree.height
 
-  genericObjects = [
+  genericObjects.push(
 
     // oak tree
     new GenericObject({
       x: 420,
       y: oakTreeDefaultY,
-      image: assets.oakTree
+      image: images.trees.oakTree
     }),
 
     // oak tree
     new GenericObject({
       x: 1950,
       y: oakTreeDefaultY,
-      image: assets.oakTree
+      image: images.trees.oakTree
     }),
 
     // oak tree
     new GenericObject({
       x: 2400,
       y: oakTreeDefaultY,
-      image: assets.oakTree
+      image: images.trees.oakTree
     })
 
-  ]
+  )
 
   // BACKGROUNDS
 
-  backgrounds = [
+  backgrounds.push(
 
     // SKY
     new Background({
       x: 0,
       y: 0,
-      image: assets.sky,
+      image: images.levels[game.level].sky,
       scrollSpeed: .11,
       autoScroll: true
     }),
@@ -502,7 +348,7 @@ var init = function() {
     new Background({
       x: 0,
       y: 0,
-      image: assets.hills,
+      image: images.levels[game.level].hills,
       scrollSpeed: .33
     })
 
@@ -513,11 +359,11 @@ var init = function() {
 //      image: assets.oakTree
 //    })
 
-  ]
+  )
 
   // BAD BUSHES
 
-  badbushes = [
+  badbushes.push(
 
     new BadBush({
       position: {
@@ -544,7 +390,7 @@ var init = function() {
     new BadBush({
       position: {
         x: 4000,
-        y: platformDefaultY - assets.platformTall.height
+        y: platformDefaultY - images.levels[game.level].platformTall.height
       },
       velocity: {
         x: -1,
@@ -555,7 +401,7 @@ var init = function() {
     new BadBush({
       position: {
         x: 5500,
-        y: platformDefaultY - assets.platformTall.height
+        y: platformDefaultY - images.levels[game.level].platformTall.height
       },
       velocity: {
         x: -1,
@@ -563,14 +409,14 @@ var init = function() {
       }
     })
 
-  ]
+  )
 
   // PARTICLES
-  particles = []
+//  particles.push()
 
   // SNOW FLOWERS
 
-  snowflowers = [
+  snowflowers.push(
 
     new SnowFlower({
       position: {
@@ -583,11 +429,11 @@ var init = function() {
       }
     })
 
-  ]
+  )
 
   // FOREGROUNDS
 
-  foregrounds = [
+//  foregrounds.push(
 
     // BIRCH TREE
 //    new Foreground({
@@ -596,7 +442,7 @@ var init = function() {
 //      image: assets.birchTree
 //    })
 
-  ]
+//  )
 
   scrollOffset = 0
 
@@ -661,7 +507,7 @@ function animate() {
     })) {
 
       stopMusic()
-      assets.completeLevel.play()
+      audio.sounds.completeLevel.play()
 
       game.disableUserInput = true
 
@@ -674,7 +520,7 @@ function animate() {
 
       // flag pole slide...
       gsap.to(player.position, {
-        y: canvas.height - assets.platform.height - player.height,
+        y: canvas.height - images.levels[game.level].platform.height - player.height,
         duration: 1,
         onComplete() {
           player.sprite = player.sprites.run.right
@@ -772,7 +618,7 @@ function animate() {
       obj2: badbush
     })) {
 
-      player.velocity.y -= playerJumpVelocity * 1.4 // trampoline
+      player.velocity.y -= player.jumpVelocity * 1.4 // trampoline
       player.state = 'jumping'
 
       badbush.explode()
@@ -1145,70 +991,6 @@ function animate() {
 
 } // animate
 
-// COLLISION DETECTION
-
-function isOnTopOfPlatform({object, platform}) {
-
-  // (rectangular collision detection)
-  return object.position.y + object.height <= platform.position.y &&
-    object.position.y + object.height + object.velocity.y >= platform.position.y &&
-    object.position.x + object.width >= platform.position.x &&
-    object.position.x <= platform.position.x + platform.width
-
-}
-
-function isAtBottomOfPlatform({object, platform}) {
-
-  // (rectangular collision detection)
-  return object.position.y >= platform.position.y + platform.height &&
-    object.position.y + object.velocity.y <= platform.position.y + platform.height &&
-    object.position.x + object.width >= platform.position.x &&
-    object.position.x <= platform.position.x + platform.width
-
-}
-
-function isAtLeftOfPlatform({object, platform}) {
-  return object.position.x === platform.position.x
-}
-
-function isAtRightOfPlatform({object, platform}) {
-  return object.position.x + object.width - 1 === platform.position.x + platform.width - 1
-}
-
-function hitSideOfPlatform({object, platform}) {
-  return object.position.x + object.width + object.velocity.x - platform.velocity.x >= platform.position.x &&
-    object.position.x + object.velocity.x <= platform.position.x + platform.width &&
-    object.position.y <= platform.position.y + platform.height &&
-    object.position.y + object.height >= platform.position.y
-}
-
-function objectsTouch({obj1, obj2}) {
-  return obj1.position.x + obj1.width >= obj2.position.x &&
-    obj1.position.x <= obj2.position.x + obj2.width &&
-    obj1.position.y + obj1.height >= obj2.position.y &&
-    obj1.position.y <= obj2.position.y + obj2.height
-}
-
-function collisionTop({obj1, obj2}) {
-
-  // (rectangular collision detection)
-  return obj1.position.y + obj1.height <= obj2.position.y &&
-    obj1.position.y + obj1.height + obj1.velocity.y >= obj2.position.y &&
-    obj1.position.x + obj1.width >= obj2.position.x &&
-    obj1.position.x <= obj2.position.x + obj2.width
-
-}
-
-function isCircleOnTopOfPlatform({object, platform}) {
-
-  // (rectangular collision detection)
-  return object.position.y + object.radius <= platform.position.y &&
-    object.position.y + object.radius + object.velocity.y >= platform.position.y &&
-    object.position.x + object.radius >= platform.position.x &&
-    object.position.x <= platform.position.x + platform.width
-
-}
-
 //-----------------------
 
 // PART II: START GAME
@@ -1278,7 +1060,7 @@ function start() {
           playSound('jump')
 
           player.state = 'jumping'
-          player.velocity.y -= playerJumpVelocity // jump velocity
+          player.velocity.y -= player.jumpVelocity // jump velocity
 
         }
 
@@ -1362,68 +1144,112 @@ function start() {
 
 // PART I: LOAD ASSETS
 
-var assetsToLoad = totalAssets
+function loadLevel(number) {
+  return loadImages(images.levels[number]).then(function() {
 
-for (var name in assets) {
+    console.log('loaded images', number);
 
-  if (!assets.hasOwnProperty(name)) { continue }
+    loadAudio(audio.levels[number]).then(function() {
 
-  var src = assets[name].src
-  var filename = src.split('/').pop()
+      console.log('loaded audio', number);
 
-  // Get file extension. @credit https://stackoverflow.com/a/1203361/763010
-  var type = filename.substring(filename.lastIndexOf('.')+1, filename.length) || filename;
+    });
 
-  switch (type) {
-
-    case 'png':
-
-      var img = new Image()
-      img.src = src
-      img.setAttribute('data-name', name)
-
-      img.onload = function() {
-
-        var name = this.getAttribute('data-name')
-        console.log(`loaded ${name}`, this.src)
-
-        assets[name] = this
-        assetsToLoad--
-        if (!assetsToLoad) start()
-
-      }
-
-      break
-
-    case 'mp3':
-    case 'wav':
-
-      var audio = new Audio(src)
-      audio.setAttribute('data-name', name)
-
-      audio.addEventListener("canplay", (event) => {
-
-        // The canplay event fires each time we play a sound, so we skip it once all assets are loaded.
-        if (!assetsToLoad) return
-
-        var self = event.target
-        var name = self.getAttribute('data-name')
-        console.log('loaded', name, self.src)
-
-        assets[name] = self
-        assetsToLoad--
-        if (!assetsToLoad) start()
-
-      });
-
-      break
-
-    default:
-
-      console.error(`${src} can't be loaded`);
-
-      break
-
-  }
-
+  });
 }
+
+console.log('loading images...');
+
+loadImages([
+
+  images.player,
+  images.badBush,
+  images.powerUps,
+  images.trees,
+  images.generic
+
+]).then(function() {
+
+  console.log('loaded images')
+
+  console.log('loading sounds...');
+
+  loadAudio(audio.sounds).then(function() {
+
+    console.log('loaded sounds')
+
+    console.log('loading level 1...')
+
+    loadLevel(1).then(start)
+
+  })
+
+})
+
+//})
+
+//var assetsToLoad = totalAssets
+//
+//for (var name in assets) {
+//
+//  if (!assets.hasOwnProperty(name)) { continue }
+//
+//  var src = assets[name].src
+//  var filename = src.split('/').pop()
+//
+//  // Get file extension. @credit https://stackoverflow.com/a/1203361/763010
+//  var type = filename.substring(filename.lastIndexOf('.')+1, filename.length) || filename;
+//
+//  switch (type) {
+//
+//    case 'png':
+//
+//      var img = new Image()
+//      img.src = src
+//      img.setAttribute('data-name', name)
+//
+//      img.onload = function() {
+//
+//        var name = this.getAttribute('data-name')
+//        console.log(`loaded ${name}`, this.src)
+//
+//        assets[name] = this
+//        assetsToLoad--
+//        if (!assetsToLoad) start()
+//
+//      }
+//
+//      break
+//
+//    case 'mp3':
+//    case 'wav':
+//
+//      var sound = new Audio(src)
+//      sound.setAttribute('data-name', name)
+//
+//      sound.addEventListener("canplay", (event) => {
+//
+//        // The canplay event fires each time we play a sound, so we skip it once all assets are loaded.
+//        if (!assetsToLoad) return
+//
+//        var self = event.target
+//        var name = self.getAttribute('data-name')
+//        console.log('loaded', name, self.src)
+//
+//        assets[name] = self
+//        assetsToLoad--
+//        if (!assetsToLoad) start()
+//
+//      });
+//
+//      break
+//
+//    default:
+//
+//      console.error(`${src} can't be loaded`);
+//
+//      break
+//
+//  }
+//
+//}

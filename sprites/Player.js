@@ -1,4 +1,10 @@
-class Player extends Sprite {
+import { Sprite } from '../modules/Sprite.js'
+import { images } from '../images.js'
+import { playSound } from '../media.js'
+import { canvas, c } from '../canvas.js'
+import { gravity } from '../environment.js'
+
+export class Player extends Sprite {
 
   constructor({ position, velocity }) {
 
@@ -6,6 +12,8 @@ class Player extends Sprite {
 
     // speed
     this.speed = 10;
+
+    this.jumpVelocity = 12
 
     // dimensions
     this.width = 32
@@ -20,7 +28,7 @@ class Player extends Sprite {
       // STAND
       stand: {
         left: {
-          img: assets.standLeft,
+          img: images.player.standLeft,
           animation: [
             5,5,5,5,5,5,
             5,5,5,5,5,5,
@@ -36,7 +44,7 @@ class Player extends Sprite {
           ]
         },
         right: {
-          img: assets.standRight,
+          img: images.player.standRight,
           animation: [
             0,0,0,0,0,0,
             0,0,0,0,0,0,
@@ -56,7 +64,7 @@ class Player extends Sprite {
       // RUN
       run: {
         left: {
-          img: assets.runLeft,
+          img: images.player.runLeft,
           animation: [
             0,0,0,
             1,1,1,1,1,1,
@@ -68,7 +76,7 @@ class Player extends Sprite {
           ]
         },
         right: {
-          img: assets.runRight,
+          img: images.player.runRight,
           animation: [
             0,0,0,
             1,1,1,1,1,1,
@@ -84,11 +92,11 @@ class Player extends Sprite {
       // JUMP
       jump: {
         left: {
-          img: assets.jumpLeft,
+          img: images.player.jumpLeft,
           frames: 1 // TODO support
         },
         right: {
-          img: assets.jumpRight,
+          img: images.player.jumpRight,
           frames: 1 // TODO support
         }
       }
@@ -115,7 +123,8 @@ class Player extends Sprite {
         case 'snow':
           this.powerUps.snowFlower = true
           this.setSpriteSet('snow')
-          assets.pickUpSnowFlower.play()
+//          assets.pickUpSnowFlower.play()
+          playSound('pickUpSnowFlower')
           break;
       }
     }
@@ -124,27 +133,28 @@ class Player extends Sprite {
         case 'snow': this.powerUps.snowFlower = false; break;
       }
       this.setSpriteSet()
-      assets.losePowerUp.play()
+//      assets.losePowerUp.play()
+      playSound('losePowerUp')
     }
 
     this.setSpriteSet = function(set) {
       const {sprites} = this
       switch (set) {
         case 'snow':
-          sprites.stand.right.img = assets.standRightSnow
-          sprites.stand.left.img = assets.standLeftSnow
-          sprites.run.right.img = assets.runRightSnow
-          sprites.run.left.img = assets.runLeftSnow
-          sprites.jump.right.img = assets.jumpRightSnow
-          sprites.jump.left.img = assets.jumpLeftSnow
+          sprites.stand.right.img = images.player.standRightSnow
+          sprites.stand.left.img = images.player.standLeftSnow
+          sprites.run.right.img = images.player.runRightSnow
+          sprites.run.left.img = images.player.runLeftSnow
+          sprites.jump.right.img = images.player.jumpRightSnow
+          sprites.jump.left.img = images.player.jumpLeftSnow
           break;
         default:
-          sprites.stand.right.img = assets.standRight
-          sprites.stand.left.img = assets.standLeft
-          sprites.run.right.img = assets.runRight
-          sprites.run.left.img = assets.runLeft
-          sprites.jump.right.img = assets.jumpRight
-          sprites.jump.left.img = assets.jumpLeft
+          sprites.stand.right.img = images.player.standRight
+          sprites.stand.left.img = images.player.standLeft
+          sprites.run.right.img = images.player.runRight
+          sprites.run.left.img = images.player.runLeft
+          sprites.jump.right.img = images.player.jumpRight
+          sprites.jump.left.img = images.player.jumpLeft
           break;
       }
     }

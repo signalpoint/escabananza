@@ -1,4 +1,6 @@
-class Sprite {
+import { c } from '../canvas.js'
+
+export class Sprite {
 
   // TODO
   //

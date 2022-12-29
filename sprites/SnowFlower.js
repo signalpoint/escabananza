@@ -1,4 +1,9 @@
-class SnowFlower extends Sprite {
+import { Sprite } from '../modules/Sprite.js'
+import { images } from '../images.js'
+import { canvas } from '../canvas.js'
+import { gravity } from '../environment.js'
+
+export class SnowFlower extends Sprite {
 
   constructor({ position, velocity }) {
 
@@ -10,7 +15,7 @@ class SnowFlower extends Sprite {
 
     this.sprites = {
       planted: {
-        img: assets.snowFlowerPlanted,
+        img: images.powerUps.snowFlower,
         animation: [
 
           // slow
@@ -62,4 +67,4 @@ class SnowFlower extends Sprite {
 
   }
 
-} // SNOWFLOWER
+}

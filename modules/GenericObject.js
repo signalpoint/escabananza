@@ -1,4 +1,6 @@
-class GenericObject {
+import { canvas, c } from '../canvas.js'
+
+export class GenericObject {
 
   constructor({ x, y, image, scrollSpeed = 1}) {
 

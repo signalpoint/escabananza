@@ -1,4 +1,6 @@
-class Platform {
+import { c } from '../canvas.js'
+
+export class Platform {
 
     constructor({ x, y, width, height, image, block, text }) {
 

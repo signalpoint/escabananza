@@ -1,4 +1,6 @@
-class Layer {
+import { canvas, c } from '../canvas.js'
+
+export class Layer {
 
   constructor({ x, y, image, scrollSpeed, scrollDirection, autoScroll }) {
 

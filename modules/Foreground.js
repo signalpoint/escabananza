@@ -1,4 +1,6 @@
-class Foreground extends Layer {
+import { Layer } from './Layer.js'
+
+export class Foreground extends Layer {
 
   constructor({ x, y, image, scrollSpeed, scrollDirection, autoScroll }) {
 
@@ -6,4 +8,4 @@ class Foreground extends Layer {
 
   }
 
-} // ScrollingBg
+}

@@ -1,4 +1,7 @@
-class Particle {
+import { canvas, c } from '../canvas.js'
+import { gravity } from '../environment.js'
+
+export class Particle {
 
   constructor({ position, velocity, radius, color = 'blue', snowball = false, fades = false }) {
 
