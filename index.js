@@ -329,7 +329,6 @@ function animate() {
       }
       else if (!player.invincible) {
 
-        console.log('hit');
         player.die()
 
       }
@@ -675,7 +674,6 @@ function animate() {
 
   // Fall below canvas.
   if (player.position.y > canvas.height) {
-    console.log('fall');
     player.die()
   }
 
@@ -698,8 +696,6 @@ function start() {
   console.log('loading level 1...')
 
   loadLevel(1).then(function() {
-
-    console.log('loaded level');
 
     // INIT
 
@@ -865,13 +861,13 @@ loadImages([
 
 ]).then(function() {
 
-  console.log('loaded images')
+//  console.log('loaded images')
 
   console.log('loading sounds...');
 
   loadAudio(audio.sounds).then(function() {
 
-    console.log('loaded sounds')
+//    console.log('loaded sounds')
 
     start()
 
