@@ -2,11 +2,7 @@ import { audio } from './audio.js'
 import { setGameOption } from './environment.js'
 
 function playSound(name) {
-//  if (!assets[name].paused) {
-//    assets[name].pause()
-//    assets[name].currentTime = 0;
-//  }
-//  assets[name].play()
+  // If the sound is already playing, pause and reset it.
   if (!audio.sounds[name].paused) {
     audio.sounds[name].pause()
     audio.sounds[name].currentTime = 0;
