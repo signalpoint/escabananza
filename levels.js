@@ -64,14 +64,19 @@ const levels = {
 
 function loadLevel(number) {
 
+  console.log('loading images for level', number)
 
   return loadImages(images.levels[number]).then(function() {
 
-    console.log('loaded images for level', number)
+//    console.log('loaded images for level', number)
+
+    console.log('loading audio for level', number)
 
     return loadAudio(audio.levels[number]).then(function() {
 
-      console.log('loaded audio for level', number)
+//      console.log('loaded audio for level', number)
+
+      // Place generic in-game platforms first...
 
       let game = getGame()
 
