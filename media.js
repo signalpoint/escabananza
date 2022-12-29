@@ -54,7 +54,7 @@ function loadImages(assets) {
             img.onload = function() {
 
               var name = this.getAttribute('data-name')
-              console.log(`loaded ${name}`, this.src)
+//              console.log(`loaded ${name}`, this.src)
 
               assets[name] = this
               assetsToLoad--
@@ -109,7 +109,7 @@ function loadImages(assets) {
             img.onload = function() {
 
               var name = this.getAttribute('data-name')
-              console.log(`loaded ${name}`, this.src)
+//              console.log(`loaded ${name}`, this.src)
 
               assets[i][name] = this
               assetsToLoad--
@@ -131,53 +131,6 @@ function loadImages(assets) {
 
     }
   })
-
-//  var assetsToLoad = 0;
-//
-//  return new Promise(function(ok, err) {
-//    for (var name in assets) {
-//
-//      if (!assets.hasOwnProperty(name)) { continue }
-//
-//      var src = assets[name].src
-//      var filename = src.split('/').pop()
-//
-//      // Get file extension. @credit https://stackoverflow.com/a/1203361/763010
-//      var type = filename.substring(filename.lastIndexOf('.')+1, filename.length) || filename;
-//
-//      switch (type) {
-//
-//        case 'png':
-//
-//          assetsToLoad++
-//
-//          var img = new Image()
-//          img.src = src
-//          img.setAttribute('data-name', name)
-//
-//          img.onload = function() {
-//
-//            var name = this.getAttribute('data-name')
-//            console.log(`loaded ${name}`, this.src)
-//
-//            assets[name] = this
-//            assetsToLoad--
-//            if (!assetsToLoad) ok()
-//
-//          }
-//
-//          break
-//
-//        default:
-//
-//          console.error(`${src} can't be loaded`)
-//
-//          break
-//
-//      }
-//
-//    }
-//  });
 
 }
 
@@ -214,7 +167,7 @@ function loadAudio(assets) {
 
             var self = event.target
             var name = self.getAttribute('data-name')
-            console.log('loaded', name, self.src)
+//            console.log('loaded', name, self.src)
 
             assets[name] = self
             assetsToLoad--
