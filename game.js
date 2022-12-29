@@ -5,7 +5,7 @@ import {
 } from './canvas.js'
 
 import {
-  levelsPlatformMap
+  levels,
 } from './levels.js'
 
 import {
@@ -79,14 +79,9 @@ var reset = function() {
 
 var init = function() {
 
-  game = getGame() || {
-    disableUserInput: false,
-    musicEnabled: true,
-    level: 1
-  }
+  game = getGame()
 
-  setGame(game)
-
+  let level = game.level
   var platformWidth = images.levels[game.level].platform.width
   var platformDefaultY = canvas.height - images.levels[game.level].platform.height
 
@@ -111,58 +106,25 @@ var init = function() {
 
   // Place generic in-game platforms first...
 
-  platforms.push(
+//  platforms.push()
+//  loadLevelPlatforms(level)
 
-    // tri block + single block stack
-//    new Platform({
-//      x: 1900 + 128,
-//      y: 350,
-//      image: assets.triBlock,
-//      block: true
-//    }),
-//    new Platform({
-//      x: 1900 + 128 + assets.singleBlock.width,
-//      y: 225,
-//      image: assets.singleBlock,
-//      block: true
-//    }),
+  // Place level's map onto the platform collection...
 
-    // tall platform
-    new Platform({
-      x: 1230 + images.levels[game.level].platform.width - images.levels[game.level].platformTall.width,
-      y: canvas.height - images.levels[game.level].platform.height - images.levels[game.level].platformTall.height * .75,
-      image: images.levels[game.level].platformTall
-    })
-
-    // 2 single blocks, stacked (blocks their path, forces them to jump over)
-//    new Platform({
-//      x: 1230 + (assets.platform.width / 2),
-//      y: platformDefaultY - assets.singleBlock.height,
-//      image: assets.singleBlock,
-//      block: true
-//    }),
-//    new Platform({
-//      x: 1230 + (assets.platform.width / 2),
-//      y: platformDefaultY - assets.singleBlock.height * 2,
-//      image: assets.singleBlock,
-//      block: true
-//    })
-
-  )
-
-  // Place level platforms onto collection...
+  console.log('loading level map')
 
   let platformDistance = 0
 
-  levelsPlatformMap[game.level].forEach(symbol => {
+  levels[level].map.forEach(symbol => {
+
     switch (symbol) {
 
       case 'lg':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - images.levels[game.level].platform.height,
+          y: canvas.height - images.levels[level].platform.height,
           width: platformWidth,
-          image: images.levels[game.level].platform,
+          image: images.levels[level].platform,
 //          block: true, // causes hitSideOfPlatform() to trigger upon game start, i.e. can't move, x velocity always 0
           text: platformDistance
         }))
@@ -176,21 +138,21 @@ var init = function() {
       case 'tall':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - images.levels[game.level].platformTall.height,
-          image: images.levels[game.level].platformTall,
+          y: canvas.height - images.levels[level].platformTall.height,
+          image: images.levels[level].platformTall,
           text: platformDistance
         }))
-        platformDistance += images.levels[game.level].platformTall.width // hmmm?
+        platformDistance += images.levels[level].platformTall.width // hmmm?
         break;
 
       case 'xtall':
         platforms.push(new Platform({
           x: platformDistance,
-          y: canvas.height - images.levels[game.level].platformXTall.height,
-          image: images.levels[game.level].platformXTall,
+          y: canvas.height - images.levels[level].platformXTall.height,
+          image: images.levels[level].platformXTall,
           text: platformDistance
         }))
-        platformDistance += images.levels[game.level].platformXTall.width // hmmm?
+        platformDistance += images.levels[level].platformXTall.width // hmmm?
         break;
 
     }
