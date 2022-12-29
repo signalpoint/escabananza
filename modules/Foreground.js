@@ -1,6 +1,6 @@
 import { canvas, c } from '../canvas.js'
 
-export class Layer {
+export class Foreground {
 
   constructor({ x, y, image, scrollSpeed, scrollDirection, autoScroll }) {
 
