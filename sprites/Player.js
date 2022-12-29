@@ -1,8 +1,13 @@
 import { Sprite } from '../modules/Sprite.js'
 import { images } from '../images.js'
 import { playSound } from '../media.js'
-import { canvas, c } from '../canvas.js'
-import { gravity } from '../environment.js'
+import {
+  canvas,
+  c,
+  init,
+  reset
+} from '../canvas.js'
+import { getGravity } from '../environment.js'
 
 export class Player extends Sprite {
 
@@ -209,7 +214,7 @@ export class Player extends Sprite {
     this.position.x += this.velocity.x
 
     if (this.position.y + this.height + this.velocity.y <= canvas.height) { // above bottom
-      this.velocity.y += gravity
+      this.velocity.y += getGravity()
     }
 //      else { // bottom
 //        this.velocity.y = 0
@@ -257,6 +262,7 @@ export class Player extends Sprite {
 
   die() {
     playSound('die')
+    reset()
     init()
   }
 
