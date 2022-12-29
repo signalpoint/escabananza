@@ -3,7 +3,7 @@ import { Particle } from '../modules/Particle.js'
 import { images } from '../images.js'
 import { playSound } from '../media.js'
 import { canvas } from '../canvas.js'
-import { gravity, addParticle } from '../environment.js'
+import { getGravity, addParticle } from '../environment.js'
 
 export class BadBush extends Sprite {
 
@@ -144,7 +144,7 @@ export class BadBush extends Sprite {
 
     // if the bottom of the bush is above the bottom of the canvas, apply gravity
     if (this.position.y + this.height + this.velocity.y <= canvas.height) { // above bottom
-      this.velocity.y += gravity
+      this.velocity.y += getGravity()
     }
 
   }
