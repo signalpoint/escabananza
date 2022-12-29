@@ -1,4 +1,5 @@
 import { audio } from './audio.js'
+import { setGameOption } from './environment.js'
 
 function playSound(name) {
 //  if (!assets[name].paused) {
@@ -16,12 +17,12 @@ function playSound(name) {
 function playMusic() {
 //  assets.level1.loop = true
 //  playSound('level1')
-  game.musicPlaying = true
+  setGameOption('musicPlaying', true)
 }
 
 function stopMusic() {
 //  assets.level1.pause()
-  game.musicPlaying = false
+  setGameOption('musicPlaying', false)
 }
 
 function loadImages(assets) {
