@@ -76,7 +76,7 @@ let gameAnimationFrame;
 // GAME PARTS...
 
 let player = null // not available until after init()
-let game = getGame()
+let game = null
 let scrollOffset = getScrollOffset()
 let platforms = getPlatforms()
 let genericObjects = getGenericObjects()
@@ -122,7 +122,6 @@ function animate() {
 
   gameAnimationFrame = requestAnimationFrame(animate)
 
-  game = getGame()
   player = getPlayer()
 
   scrollOffset = getScrollOffset()
@@ -687,153 +686,170 @@ function animate() {
 // PART II: START GAME
 
 function start() {
-  // INIT
 
-  init()
+  game = getGame() || {
+    disableUserInput: false,
+    musicEnabled: true,
+    level: 1
+  }
 
-  player = getPlayer()
+  setGame(game)
 
-  // ANIMATE
+  console.log('loading level 1...')
 
-  animate()
+  loadLevel(1).then(function() {
 
-  // EVENT LISTENERS
+    console.log('loaded level');
 
-  // KEY DOWN
+    // INIT
 
-  addEventListener('keydown', ({ keyCode } ) => {
+    init()
 
-//    console.log(keyCode);
+    player = getPlayer()
 
-    if (game.disableUserInput) return
+    // ANIMATE
 
-    // Play music
-    if (game.musicEnabled && !game.musicPlaying) {
-//      playMusic()
-    }
+    animate()
 
-    switch (keyCode) {
+    // EVENT LISTENERS
 
-      // LEFT
-      case 65: // (A)
-      case 37: // (left arrow)
+    // KEY DOWN
 
-        keys.left.pressed = true
+    addEventListener('keydown', ({ keyCode } ) => {
 
-        lastKey = 'left'
+  //    console.log(keyCode);
 
-        if (player.state !== 'jumping' && player.state !== 'falling') {
-          player.state = 'running'
-        }
+      if (game.disableUserInput) return
 
-        break
+      // Play music
+      if (game.musicEnabled && !game.musicPlaying) {
+  //      playMusic()
+      }
 
-      // RIGHT
-      case 68: // (D)
-      case 39: // (right arrow)
+      switch (keyCode) {
 
-        keys.right.pressed = true
+        // LEFT
+        case 65: // (A)
+        case 37: // (left arrow)
 
-        lastKey = 'right'
+          keys.left.pressed = true
 
-        if (player.state !== 'jumping' && player.state !== 'falling') {
-          player.state = 'running'
-        }
+          lastKey = 'left'
 
-        break
+          if (player.state !== 'jumping' && player.state !== 'falling') {
+            player.state = 'running'
+          }
 
-      // JUMP
-      case 87: // (W)
-      case 38: // (up arrow)
+          break
 
-        keys.space.pressed = true
+        // RIGHT
+        case 68: // (D)
+        case 39: // (right arrow)
 
-        if (player.state === 'standing' || player.state === 'running') {
+          keys.right.pressed = true
 
-          playSound('jump')
+          lastKey = 'right'
 
-          player.state = 'jumping'
-          player.velocity.y -= player.jumpVelocity // jump velocity
+          if (player.state !== 'jumping' && player.state !== 'falling') {
+            player.state = 'running'
+          }
 
-        }
+          break
 
-        break
+        // JUMP
+        case 87: // (W)
+        case 38: // (up arrow)
 
-      // USE POWER UP (SPACE)
-      case 32:
+          keys.space.pressed = true
 
-        if (!player.powerUps.snowFlower) return
+          if (player.state === 'standing' || player.state === 'running') {
 
-        // play sound
-        playSound('tossSnowFlower')
+            playSound('jump')
 
-        // throw/toss a snow ball
-        particles.push(new Particle({
-          position: {
-            x: player.position.x + player.width / 2,
-            y: player.position.y + player.height / 2
-          },
-          velocity: {
-            x: lastKey == 'right' ? 12 : -12,
-            y: 0
-          },
-          radius: 5,
-          color: '#2eb5ef',
-          snowball: true
-        }))
+            player.state = 'jumping'
+            player.velocity.y -= player.jumpVelocity // jump velocity
 
-        break
+          }
 
-    }
-  });
+          break
 
-  // KEY UP
+        // USE POWER UP (SPACE)
+        case 32:
 
-  addEventListener('keyup', ({ keyCode }) => {
+          if (!player.powerUps.snowFlower) return
 
-    if (game.disableUserInput) return
+          // play sound
+          playSound('tossSnowFlower')
 
-    switch (keyCode) {
+          // throw/toss a snow ball
+          particles.push(new Particle({
+            position: {
+              x: player.position.x + player.width / 2,
+              y: player.position.y + player.height / 2
+            },
+            velocity: {
+              x: lastKey == 'right' ? 12 : -12,
+              y: 0
+            },
+            radius: 5,
+            color: '#2eb5ef',
+            snowball: true
+          }))
 
-      // LEFT
-      case 65: // (A)
-      case 37: // (left arrow)
+          break
 
-        keys.left.pressed = false
+      }
+    });
 
-        if (player.state !== 'jumping' && player.state !== 'falling') {
-          player.state = 'standing'
-        }
+    // KEY UP
 
-        break
+    addEventListener('keyup', ({ keyCode }) => {
 
-      // RIGHT
-      case 68: // (D)
-      case 39: // (right arrow)
+      if (game.disableUserInput) return
 
-        keys.right.pressed = false
+      switch (keyCode) {
 
-        if (player.state !== 'jumping' && player.state !== 'falling') {
-          player.state = 'standing'
-        }
+        // LEFT
+        case 65: // (A)
+        case 37: // (left arrow)
 
-        break
+          keys.left.pressed = false
 
-      // JUMP
-      case 87: // (W)
-      case 38: // (up arrow)
-        keys.space.pressed = false
-        break
+          if (player.state !== 'jumping' && player.state !== 'falling') {
+            player.state = 'standing'
+          }
 
-      // USE POWER UP (SPACE)
-      case 32:
+          break
 
-        break
+        // RIGHT
+        case 68: // (D)
+        case 39: // (right arrow)
 
-    }
-  });
+          keys.right.pressed = false
 
-} // GAME
+          if (player.state !== 'jumping' && player.state !== 'falling') {
+            player.state = 'standing'
+          }
+
+          break
+
+        // JUMP
+        case 87: // (W)
+        case 38: // (up arrow)
+          keys.space.pressed = false
+          break
+
+        // USE POWER UP (SPACE)
+        case 32:
+
+          break
+
+      }
+    });
+
+  })
+
+} // start
 
 // PART I: LOAD ASSETS
 
@@ -857,9 +873,7 @@ loadImages([
 
     console.log('loaded sounds')
 
-    console.log('loading level 1...')
-
-    loadLevel(1).then(start)
+    start()
 
   })
 
