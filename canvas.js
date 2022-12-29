@@ -1,3 +1,6 @@
+// TODO all the environment.js usage in this file should probably be in something like main.js, it'd lighten up this
+// module a whole bunch; keep it lean and mean for its animation purposes
+
 import { images } from './images.js'
 
 import {
