@@ -3,10 +3,12 @@ import { images } from '../images.js'
 import { playSound } from '../media.js'
 import {
   canvas,
-  c,
+  c
+} from '../canvas.js'
+import {
   init,
   reset
-} from '../canvas.js'
+} from '../game.js'
 import { getGravity } from '../environment.js'
 
 export class Player extends Sprite {
