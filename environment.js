@@ -3,8 +3,6 @@
 let game = null
 
 let scrollOffset = 0 // SCROLL OFFSET
-const scrollOffsetFinish = 7650 // WIN: level 1
-//const scrollOffsetFinish = 720 // WIN: test
 
 let gravity = 0.5
 let player = null
@@ -61,7 +59,7 @@ function getPlatforms() {
 }
 
 function setPlatforms(_platforms) {
-  platforms = platforms
+  platforms = _platforms
 }
 
 function resetPlatforms() {
@@ -161,7 +159,6 @@ export {
 
   getScrollOffset,
   setScrollOffset,
-  scrollOffsetFinish,
 
   gravity,
   getGravity,
