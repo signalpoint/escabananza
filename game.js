@@ -6,6 +6,7 @@ import {
 
 import {
   levels,
+  reloadLevel
 } from './levels.js'
 
 import {
@@ -13,7 +14,6 @@ import {
   setGame,
   getScrollOffset,
   setScrollOffset,
-  scrollOffsetFinish,
   gravity,
   getPlayer,
   setPlayer,
@@ -73,6 +73,8 @@ var reset = function() {
   resetParticles()
   resetSnowFlowers()
 
+  reloadLevel(getGame().level)
+
 }
 
 // INIT
@@ -82,18 +84,13 @@ var init = function() {
   game = getGame()
 
   let level = game.level
-  var platformWidth = images.levels[game.level].platform.width
-  var platformDefaultY = canvas.height - images.levels[game.level].platform.height
 
   // GAME PARTS...
 
   // PLAYER
 
   player = new Player({
-    position: {
-      x: 100,
-      y: platformDefaultY - images.player.standRight.height // start on the ground
-    },
+    position: levels[level].startPosition,
     velocity: {
       x: 0,
       y: 0
@@ -101,56 +98,6 @@ var init = function() {
   })
 
   setPlayer(player)
-
-  // PLATFORMS | map
-
-  // Place level's map onto the platform collection...
-
-  let platformDistance = 0
-
-  levels[level].map.forEach(symbol => {
-
-    switch (symbol) {
-
-      case 'lg':
-        platforms.push(new Platform({
-          x: platformDistance,
-          y: canvas.height - images.levels[level].platform.height,
-          width: platformWidth,
-          image: images.levels[level].platform,
-//          block: true, // causes hitSideOfPlatform() to trigger upon game start, i.e. can't move, x velocity always 0
-          text: platformDistance
-        }))
-        platformDistance += platformWidth
-        break;
-
-      case 'gap':
-        platformDistance += 150
-        break;
-
-      case 'tall':
-        platforms.push(new Platform({
-          x: platformDistance,
-          y: canvas.height - images.levels[level].platformTall.height,
-          image: images.levels[level].platformTall,
-          text: platformDistance
-        }))
-        platformDistance += images.levels[level].platformTall.width // hmmm?
-        break;
-
-      case 'xtall':
-        platforms.push(new Platform({
-          x: platformDistance,
-          y: canvas.height - images.levels[level].platformXTall.height,
-          image: images.levels[level].platformXTall,
-          text: platformDistance
-        }))
-        platformDistance += images.levels[level].platformXTall.width // hmmm?
-        break;
-
-    }
-
-  })
 
   // 6 - block
 //  platforms.push(new Platform({
@@ -164,8 +111,8 @@ var init = function() {
   // FLAG POLE
 
   flagPole = new GenericObject({
-    x: scrollOffsetFinish,
-    y: canvas.height - images.levels[game.level].platform.height - images.generic.flagPole.height,
+    x: levels[level].finishPosition.x,
+    y: levels[level].finishPosition.y,
     image: images.generic.flagPole,
     scrollSpeed: 1
   })
@@ -173,33 +120,6 @@ var init = function() {
   setFlagPole(flagPole)
 
   // GENERIC OBJECTS
-
-  const oakTreeDefaultY = canvas.height - images.levels[game.level].platform.height - images.trees.oakTree.height
-
-  genericObjects.push(
-
-    // oak tree
-    new GenericObject({
-      x: 420,
-      y: oakTreeDefaultY,
-      image: images.trees.oakTree
-    }),
-
-    // oak tree
-    new GenericObject({
-      x: 1950,
-      y: oakTreeDefaultY,
-      image: images.trees.oakTree
-    }),
-
-    // oak tree
-    new GenericObject({
-      x: 2400,
-      y: oakTreeDefaultY,
-      image: images.trees.oakTree
-    })
-
-  )
 
   // BACKGROUNDS
 
@@ -209,8 +129,8 @@ var init = function() {
     new Background({
       x: 0,
       y: 0,
-      image: images.levels[game.level].sky,
-      scrollSpeed: .11,
+      image: images.levels[level].sky,
+      scrollSpeed: .15,
       autoScroll: true
     }),
 
@@ -218,8 +138,8 @@ var init = function() {
     new Background({
       x: 0,
       y: 0,
-      image: images.levels[game.level].hills,
-      scrollSpeed: .33
+      image: images.levels[level].hills,
+      scrollSpeed: .34
     })
 
     // OAK TREE
@@ -231,75 +151,8 @@ var init = function() {
 
   )
 
-  // BAD BUSHES
-
-  badbushes.push(
-
-    new BadBush({
-      position: {
-        x: 650,
-        y: platformDefaultY - 100
-      },
-      velocity: {
-        x: -1,
-        y: 0
-      }
-    }),
-
-    new BadBush({
-      position: {
-        x: 2000,
-        y: platformDefaultY - 100
-      },
-      velocity: {
-        x: -1,
-        y: 0
-      }
-    }),
-
-    new BadBush({
-      position: {
-        x: 4000,
-        y: platformDefaultY - images.levels[game.level].platformTall.height
-      },
-      velocity: {
-        x: -1,
-        y: 0
-      }
-    }),
-
-    new BadBush({
-      position: {
-        x: 5500,
-        y: platformDefaultY - images.levels[game.level].platformTall.height
-      },
-      velocity: {
-        x: -1,
-        y: 0
-      }
-    })
-
-  )
-
   // PARTICLES
 //  particles.push()
-
-  // SNOW FLOWERS
-
-  snowflowers.push(
-
-    new SnowFlower({
-      position: {
-        x: 420,
-        y: 96
-      },
-      velocity: {
-        x: 0,
-        y: 0
-      }
-    })
-
-  )
 
   // FOREGROUNDS
 
