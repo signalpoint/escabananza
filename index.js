@@ -18,7 +18,6 @@ import {
   setGame,
   getScrollOffset,
   setScrollOffset,
-  scrollOffsetFinish,
   setGravity,
   getGravity,
   getPlayer,
@@ -69,9 +68,9 @@ const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnim
 
 let gameAnimationFrame;
 
-//setTimeout(function() {
-//  stopGame();
-//}, 60000);
+setTimeout(function() {
+  stopGame();
+}, 60000 * 5);
 
 // GAME PARTS...
 
@@ -190,9 +189,11 @@ function animate() {
 
       player.sprite = player.sprites.stand.right
 
+      let slideDownTo = flagPole.position.y + images.generic.flagPole.height - player.height
+
       // flag pole slide...
       gsap.to(player.position, {
-        y: canvas.height - images.levels[game.level].platform.height - player.height,
+        y: slideDownTo,
         duration: 1,
         onComplete() {
           player.sprite = player.sprites.run.right
@@ -249,7 +250,7 @@ function animate() {
               init()
               // TODO unload last level's assets!
             })
-          }, 1);
+          }, 2000);
         }
 
         increment++
@@ -315,9 +316,10 @@ function animate() {
 
     // BadBush Hits the Player
     else if (
-      player.position.x + player.width >= badbush.position.x &&
-      player.position.y + player.height >= badbush.position.y &&
-      player.position.x <= badbush.position.x + badbush.width
+      objectsTouch({
+        obj1: badbush,
+        obj2: player
+      })
     ) {
 
       if (player.powerUps.snowFlower) {
@@ -693,9 +695,9 @@ function start() {
 
   setGame(game)
 
-  console.log('loading level 1...')
+  console.log('loading level...', game.level)
 
-  loadLevel(1).then(function() {
+  loadLevel(game.level).then(function() {
 
     // INIT
 
