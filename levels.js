@@ -17,13 +17,14 @@ import { BadBush } from './sprites/BadBush.js'
 import { SnowFlower } from './sprites/SnowFlower.js'
 
 const levels = {
+
   1: {
     startPosition: {
       x: 100,
       y: 416
     },
     finishPosition: {
-      x: 7650,
+      x: 7700,
       y: 288 // on top of level 1 lg platform
     },
     map: [
@@ -68,6 +69,7 @@ const levels = {
       'lg'
     ]
   },
+
   2: {
     startPosition: {
       x: 100,
@@ -179,14 +181,14 @@ function loadLevelParts(number) {
   let platformTallSnowFlowerY = canvas.height - platformTallHeight - images.powerUps.snowFlower.height
   let platformExtraTallSnowFlowerY = canvas.height - platformExtraTallHeight - images.powerUps.snowFlower.height
 
-  console.log('platformDefaultY', platformDefaultY)
-  console.log('platformWidth', platformWidth)
-  console.log('platformTallWidth', platformTallWidth)
-  console.log('platformTallHeight', platformTallHeight)
-  console.log('platformExtraTallWidth', platformExtraTallWidth)
-  console.log('platformExtraTallHeight', platformExtraTallHeight)
-  console.log('platformTallBadBushY', platformTallBadBushY)
-  console.log('platformTallSnowFlowerY', platformTallSnowFlowerY)
+//  console.log('platformDefaultY', platformDefaultY)
+//  console.log('platformWidth', platformWidth)
+//  console.log('platformTallWidth', platformTallWidth)
+//  console.log('platformTallHeight', platformTallHeight)
+//  console.log('platformExtraTallWidth', platformExtraTallWidth)
+//  console.log('platformExtraTallHeight', platformExtraTallHeight)
+//  console.log('platformTallBadBushY', platformTallBadBushY)
+//  console.log('platformTallSnowFlowerY', platformTallSnowFlowerY)
 
   if (number === 1) {
 
@@ -336,14 +338,14 @@ function loadLevelParts(number) {
 
        // tall platform
        new Platform({
-         x: platformWidth * 2 - platformTallWidth,
+         x: 180,
          y: canvas.height - platformTallHeight,
          image: images.levels[number].platformTall
        }),
 
        // extra tall platform
        new Platform({
-         x: platformWidth * 1.88,
+         x: 180 + platformTallWidth,
          y: canvas.height - platformExtraTallHeight,
          image: images.levels[number].platformXTall
        }),
@@ -367,6 +369,34 @@ function loadLevelParts(number) {
          x: 3040,
          y: canvas.height - platformTallHeight,
          image: images.levels[number].platformTall
+       }),
+
+       // lg platform
+//       new Platform({
+//         x: 3900,
+//         y: canvas.height - platformHeight,
+//         image: images.levels[number].platform
+//       }),
+
+       // lg platform
+//       new Platform({
+//         x: 3900 + platformWidth,
+//         y: canvas.height - platformHeight,
+//         image: images.levels[number].platform
+//       }),
+
+       // tall platform
+//       new Platform({
+//         x: 3900 + platformWidth * 2,
+//         y: canvas.height - platformTallHeight,
+//         image: images.levels[number].platformTall
+//       }),
+
+       // lg platform
+       new Platform({
+         x: 5050,
+         y: canvas.height - platformHeight,
+         image: images.levels[number].platform
        }),
 
        // extra tall platform
@@ -406,7 +436,7 @@ function loadLevelParts(number) {
 
        // tall platform
        new Platform({
-         x: 7225,
+         x: 7250,
          y: canvas.height - platformTallHeight,
          image: images.levels[number].platformTall
        }),
@@ -420,7 +450,7 @@ function loadLevelParts(number) {
 
       new BadBush({
         position: {
-          x: 680,
+          x: 560,
           y: platformExtraTallBadBushY
         },
         velocity: {
@@ -484,6 +514,17 @@ function loadLevelParts(number) {
         }
       }),
 
+      new BadBush({
+        position: {
+          x: 7200,
+          y: platformTallBadBushY
+        },
+        velocity: {
+          x: -1,
+          y: 0
+        }
+      }),
+
     )
 
     // SNOW FLOWERS
@@ -528,7 +569,6 @@ function loadLevelMapOntoPlatforms(level) {
         platform = new Platform({
           x: platformDistance,
           y: canvas.height - images.levels[level].platform.height,
-//          width: platformWidth,
           image: images.levels[level].platform,
 //          block: true, // causes hitSideOfPlatfaorm() to trigger upon game start, i.e. can't move, x velocity always 0
           text: platformDistance
@@ -551,7 +591,6 @@ function loadLevelMapOntoPlatforms(level) {
           image: images.levels[level].platformTall,
           text: platformDistance
         })
-//        platformDistance += images.levels[level].platformTall.width // hmmm?
         platformDistance += platform.width
         break;
 
@@ -562,7 +601,6 @@ function loadLevelMapOntoPlatforms(level) {
           image: images.levels[level].platformXTall,
           text: platformDistance
         })
-//        platformDistance += images.levels[level].platformXTall.width // hmmm?
         platformDistance += platform.width
         break;
 
