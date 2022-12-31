@@ -1,5 +1,7 @@
 import { canvas, c } from '../canvas.js'
 
+// TODO consider renaming to Layer, and then let devs make their own layers (e.g. backgrounds, foregrounds, etc)
+
 export class Background {
 
   constructor({ x, y, image, scrollSpeed, scrollDirection, autoScroll }) {
@@ -89,42 +91,110 @@ export class Background {
 
     else {
 
-      if (this.scrollVal >= canvas.width) {
-        this.scrollVal = 0
+      // As the player moves to the right, the background's x position decreases (goes into negative)...
+
+      this.scrollVal = this.position.x % this.width
+
+      // TODO
+      // - if scroll speed is 1 (aka no scrolling), there is probably a faster way to call drawImage without the src and
+      //     destination args!
+      // - this section would probably be faster without declaring the "let" vars below
+
+      if (-this.scrollVal >= this.width - canvas.width) {
+
+        // the screen is scrolling to the right...
+
+        // draw the left side of the image somewhere on the right side of the canvas...
+
+        let destinationX = (this.width + this.scrollVal) % canvas.width
+        let destinationY = 0
+        let cropWidth = canvas.width - destinationX
+        let cropHeight = this.image.height
+
+//        let destinationDifference = canvas.width - destinationX
+//        if (destinationDifference > -10 && destinationDifference < 10) {
+//          console.log('time to draw again!', cropWidth + ' x ' + cropHeight + ' => ' + destinationX + ', ' + destinationY)
+//        }
+
+        c.drawImage(this.image,
+
+          // SOURCE (x, y, width, height)
+          0,
+          0,
+          cropWidth,
+          cropHeight,
+
+          // DESTINATION (x, y, width, height)
+          destinationX,
+          destinationY,
+          cropWidth,
+          cropHeight
+
+        )
+
       }
 
-//          this.scrollVal = this.position.x % canvas.width
+      // GOOD!!!! (probably faster)
 
-      this.scrollVal = this.position.x
+      let imgDestinationX = this.scrollVal
+      let imgDestinationY = this.position.y
+      let imgDestinationWidth = this.image.width
+      let imgDestinationHeight = this.image.height
 
-      // TODO if scroll speed is 1 (aka no scrolling), there is probably a faster way to call drawImage without
-      // the src and destination args!
+//      console.log(
+//        'draw',
+//        imgDestinationX + ', ' + imgDestinationY + ' => ' +
+//        imgDestinationWidth + ' x ' + imgDestinationHeight
+//      )
+
+//      if (imgDestinationX > -10 && imgDestinationX < 10) {
+//        console.log(
+//          'draw start!',
+//          imgDestinationWidth + ' x ' + imgDestinationHeight + ' => ' +
+//          imgDestinationX + ', ' + imgDestinationY
+//        )
+//      }
 
       c.drawImage(this.image,
 
-        // SOURCE (x, y, width, height)
-        0,
-        0,
-        -this.scrollVal - 1,
-        this.image.height,
-
-        // DESTINATION (x, y, width, height)
-        canvas.width + this.scrollVal,
-//        0,
-        this.position.y,
-        -this.scrollVal,
-        this.image.height
+        imgDestinationX,
+        imgDestinationY,
+        imgDestinationWidth,
+        imgDestinationHeight
 
       )
-      c.drawImage(this.image,
 
-        this.scrollVal,
+      // ALSO GOOD!!!! (probably slower because of the src,dst,crop,etc
+
+      // draw the cropped image... hmm, what's up here?
+
+//      let imgSrcX = -this.scrollVal
+//      let imgSrcY = this.position.y
+//      let imgCropWidth = this.image.width - imgSrcX
+//      let imgCropHeight = this.image.height
+//
+//      console.log(
+//        'draw',
+//        imgSrcX + ', ' + imgSrcY + ' => ' +
+//        imgCropWidth + ' x ' + imgCropHeight
+//      )
+//
+//      c.drawImage(this.image,
+//
+//        // SOURCE (x, y, width, height)
+//        imgSrcX,
+//        imgSrcY,
+//        imgCropWidth,
+//        imgCropHeight,
+//
+//        // DESTINATION (x, y, width, height)
 //        0,
-        this.position.y,
-        this.image.width,
-        this.image.height
+//        0,
+//        imgCropWidth,
+//        imgCropHeight,
+//
+//      )
 
-      )
 
     }
 
@@ -135,4 +205,4 @@ export class Background {
     this.position.x += this.velocity.x
   }
 
-} // Layer
+} // Background
