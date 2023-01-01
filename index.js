@@ -44,6 +44,7 @@ import {
   isCircleOnTopOfPlatform
 } from './utilities/collision.js'
 
+import { Game } from './modules/Game.js'
 //import { Layer } from './modules/Layer.js'
 import { Background } from './modules/Background.js'
 import { Foreground } from './modules/Foreground.js'
@@ -90,7 +91,7 @@ let flagPole = null // not available until after init()
 
 function stopGame() {
   console.log('STOPPED GAME!');
-  if (game.musicPlaying) stopMusic()
+  if (game.musicIsPlaying()) stopMusic()
   cancelAnimationFrame(gameAnimationFrame);
 }
 
@@ -120,6 +121,9 @@ const keys = {
 function animate() {
 
   gameAnimationFrame = requestAnimationFrame(animate)
+
+  // Clear canvas
+  c.clearRect(0,0, canvas.width, canvas.height)
 
   player = getPlayer()
 
@@ -171,7 +175,7 @@ function animate() {
 
     // WIN = player + flag pole
     // complete level
-    if (!game.disableUserInput && objectsTouch({
+    if (game.userInputIsEnabled() && objectsTouch({
       obj1: player,
       obj2: flagPole
     })) {
@@ -179,7 +183,7 @@ function animate() {
       stopMusic()
       audio.sounds.completeLevel.play()
 
-      game.disableUserInput = true
+      game.disableUserInput()
 
       player.velocity.x = 0
       player.velocity.y = 0
@@ -236,15 +240,16 @@ function animate() {
         if (increment === 3) {
           clearInterval(fireworksInterval)
           setTimeout(() => {
+            let level = game.getLevel()
             console.log('move to next level')
-            loadLevel(game.level + 1).then(function() {
+            loadLevel(level + 1).then(function() {
 //              lastKey = null
               keys.left.pressed = false
               keys.right.pressed = false
               keys.up.pressed = false
               keys.space.pressed = false
-              game.level++
-              game.disableUserInput = false
+              game.setLevel(level + 1)
+              game.enableUserInput()
               setGravity(oldGravity)
               reset()
               init()
@@ -352,7 +357,7 @@ function animate() {
 
   let hitSide = false
 
-  if (game.disableUserInput) return
+  if (game.userInputIsDisabled()) return
 
   if (keys.right.pressed && player.position.x < 400 /* right edge */) {
     player.velocity.x = player.speed
@@ -687,17 +692,17 @@ function animate() {
 
 function start() {
 
-  game = getGame() || {
-    disableUserInput: false,
-    musicEnabled: true,
+  game = getGame() || new Game({
     level: 1
-  }
+  })
 
   setGame(game)
 
-  console.log('loading level...', game.level)
+  let level = game.getLevel()
 
-  loadLevel(game.level).then(function() {
+  console.log('loading level...', level)
+
+  loadLevel(level).then(function() {
 
     // INIT
 
@@ -717,10 +722,10 @@ function start() {
 
   //    console.log(keyCode);
 
-      if (game.disableUserInput) return
+      if (game.userInputIsDisabled()) return
 
       // Play music
-      if (game.musicEnabled && !game.musicPlaying) {
+      if (game.musicIsEnabled() && !game.musicIsPlaying()) {
   //      playMusic()
       }
 
@@ -803,7 +808,7 @@ function start() {
 
     addEventListener('keyup', ({ keyCode }) => {
 
-      if (game.disableUserInput) return
+      if (game.userInputIsDisabled()) return
 
       switch (keyCode) {
 
